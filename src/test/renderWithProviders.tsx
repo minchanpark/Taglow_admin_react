@@ -1,0 +1,23 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, type RenderOptions } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { AdminRuntimeProvider } from '../api/service/adminRuntime';
+
+export function renderWithProviders(
+  ui: ReactElement,
+  options?: RenderOptions & { route?: string },
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AdminRuntimeProvider>
+        <MemoryRouter initialEntries={[options?.route ?? '/']}>{ui}</MemoryRouter>
+      </AdminRuntimeProvider>
+    </QueryClientProvider>,
+    options,
+  );
+}
