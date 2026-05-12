@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Test Suite"
+  short_description: "Design and run Taglow regression tests"
+  default_prompt: "Use $taglow-test-suite to add or repair Taglow Admin tests."

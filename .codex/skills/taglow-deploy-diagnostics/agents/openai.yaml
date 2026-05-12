@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Deploy Diagnostics"
+  short_description: "Verify Vite, Firebase, CORS, and public APIs"
+  default_prompt: "Use $taglow-deploy-diagnostics to prepare or debug a Taglow Admin deployment."

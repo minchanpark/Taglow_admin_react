@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Upload and Share"
+  short_description: "Handle image upload, QR, and player links"
+  default_prompt: "Use $taglow-upload-share to implement image upload, QR export, or player link behavior."

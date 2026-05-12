@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Debugging"
+  short_description: "Debug cross-layer Taglow admin failures"
+  default_prompt: "Use $taglow-debug to diagnose a Taglow Admin React bug."

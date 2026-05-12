@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Performance"
+  short_description: "Profile and optimize Taglow admin performance"
+  default_prompt: "Use $taglow-performance to check and improve Taglow Admin React performance."

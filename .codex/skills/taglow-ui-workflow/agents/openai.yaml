@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow UI Workflow"
+  short_description: "Build operator-focused admin screens"
+  default_prompt: "Use $taglow-ui-workflow to build a Taglow admin screen."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Security Hardening"
+  short_description: "Review and harden auth, CORS, and uploads"
+  default_prompt: "Use $taglow-security-hardening to review Taglow Admin React security."

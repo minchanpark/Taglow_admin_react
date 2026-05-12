@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Review Quality"
+  short_description: "Review boundaries, risk, and release readiness"
+  default_prompt: "Use $taglow-review-quality to review Taglow Admin React changes before merge."

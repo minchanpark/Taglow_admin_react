@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Feature Implementation"
+  short_description: "Build features within Taglow architecture"
+  default_prompt: "Use $taglow-implement-feature to implement the next Taglow Admin React feature."
