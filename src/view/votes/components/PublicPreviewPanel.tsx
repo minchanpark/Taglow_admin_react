@@ -1,5 +1,5 @@
 import { RefreshCw } from 'lucide-react';
-import { AdminButton } from '../../common/AdminButton';
+import { AdminButton } from '../../../components/AdminButton';
 
 type PublicPreviewPanelProps = {
   preview?: {

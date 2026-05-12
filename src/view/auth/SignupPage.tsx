@@ -2,9 +2,10 @@ import { UserPlus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthController } from '../../api/controller/useAuthController';
-import { AdminButton } from '../common/AdminButton';
-import { AdminMessage } from '../common/AdminMessage';
-import { AdminTextField } from '../common/AdminTextField';
+import { AdminButton } from '../../components/AdminButton';
+import { AdminHeader } from '../../components/AdminHeader';
+import { AdminMessage } from '../../components/AdminMessage';
+import { AdminTextField } from '../../components/AdminTextField';
 
 type SignupForm = {
   name: string;
@@ -25,11 +26,14 @@ export function SignupPage() {
   });
 
   return (
-    <main className="auth-page">
-      <section className="auth-panel narrow">
-        <form className="auth-form" onSubmit={submit}>
-          <h1>회원가입</h1>
-          <p>신규 사용자는 서버 정책에 따라 USER role로 생성됩니다.</p>
+    <section className="auth-screen">
+      <AdminHeader title="회원가입" titleTone="black" />
+      <div className="auth-body auth-body-with-header">
+        <div className="auth-title-block">
+          <h1>환영합니다.</h1>
+          <p>계정을 만들어 시작해보세요.</p>
+        </div>
+        <form className="auth-form" id="signup-form" onSubmit={submit}>
           <AdminTextField label="계정명" autoComplete="username" {...register('name')} />
           <AdminTextField
             label="비밀번호"
@@ -46,18 +50,22 @@ export function SignupPage() {
           {auth.errorMessage ? (
             <AdminMessage tone="danger">{auth.errorMessage}</AdminMessage>
           ) : null}
-          <AdminButton
-            icon={<UserPlus size={18} />}
-            isLoading={auth.isSubmitting}
-            type="submit"
-          >
-            USER 계정 생성
-          </AdminButton>
-          <p className="form-link">
-            이미 계정이 있나요? <Link to="/login">로그인</Link>
-          </p>
         </form>
-      </section>
-    </main>
+      </div>
+      <div className="bottom-cta">
+        <AdminButton
+          fullWidth
+          icon={<UserPlus size={20} />}
+          isLoading={auth.isSubmitting}
+          type="submit"
+          form="signup-form"
+        >
+          가입하기
+        </AdminButton>
+        <p className="bottom-link">
+          이미 계정이 있나요? <Link to="/login">로그인</Link>
+        </p>
+      </div>
+    </section>
   );
 }

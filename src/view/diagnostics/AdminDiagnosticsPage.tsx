@@ -1,107 +1,134 @@
-import { CheckCircle2, ShieldCheck, Wifi, XCircle } from 'lucide-react';
-import { useAdminRuntime } from '../../api/service/adminRuntime';
-import { AdminMessage } from '../common/AdminMessage';
+import {
+  ChevronRight,
+  FileText,
+  HelpCircle,
+  Lock,
+  LogOut,
+  ShieldAlert,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthController } from '../../api/controller/useAuthController';
+import { AdminButton } from '../../components/AdminButton';
+import { AdminHeader } from '../../components/AdminHeader';
+import { ConfirmModal } from './components/ConfirmModal';
 
-const maskEmpty = (value: string) => (value.trim().length > 0 ? value : 'not configured');
+type ModalKind = 'logout' | 'delete';
+
+function SettingsRow({
+  danger,
+  icon,
+  label,
+  onClick,
+  trailing,
+}: {
+  danger?: boolean;
+  icon: ReactNode;
+  label: string;
+  onClick?(): void;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <button className={`settings-row ${danger ? 'danger' : ''}`} onClick={onClick} type="button">
+      <span className="settings-row-icon">{icon}</span>
+      <span>{label}</span>
+      {trailing ?? <ChevronRight />}
+    </button>
+  );
+}
 
 export function AdminDiagnosticsPage() {
-  const { env } = useAdminRuntime();
+  const auth = useAuthController();
+  const navigate = useNavigate();
+  const [modal, setModal] = useState<ModalKind>();
+  const userName = auth.user?.name || 'operator';
+  const initial = userName.slice(0, 1).toUpperCase();
 
-  const checks = [
-    {
-      label: 'API base URL',
-      value: env.apiBaseUrl,
-      ok: env.apiBaseUrl.startsWith('http'),
-    },
-    {
-      label: 'Participant base URL',
-      value: env.participantBaseUrl,
-      ok: env.participantBaseUrl.startsWith('http'),
-    },
-    {
-      label: 'Player base URL',
-      value: env.playerBaseUrl,
-      ok: env.playerBaseUrl.startsWith('http'),
-    },
-    {
-      label: 'S3 public base URL',
-      value: env.s3PublicBaseUrl,
-      ok: env.s3PublicBaseUrl.startsWith('http'),
-    },
-  ];
+  const confirmLogout = async () => {
+    await auth.logout();
+    setModal(undefined);
+    navigate('/login', { replace: true });
+  };
+
+  const confirmDelete = async () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('venturous_users');
+      window.localStorage.removeItem('venturous_session');
+    }
+    await auth.logout();
+    setModal(undefined);
+    navigate('/signup', { replace: true });
+  };
 
   return (
-    <section className="page-stack">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Diagnostics</p>
-          <h1>운영 환경 진단</h1>
-          <p>브라우저 번들에 노출 가능한 설정만 표시합니다.</p>
-        </div>
-      </div>
+    <section className="admin-screen surface-screen">
+      <AdminHeader backTo="/admin" title="설정" titleTone="black" />
 
-      <AdminMessage tone="info">
-        Mock MVP에서는 실제 Spring/S3 요청을 실행하지 않습니다. CORS와 session
-        cookie는 real API 연결 단계에서 Gateway 진단으로 확장합니다.
-      </AdminMessage>
+      <main className="settings-body">
+        <section className="profile-card">
+          <div className="profile-avatar">{initial}</div>
+          <div>
+            <h1>{userName}</h1>
+            <p>Taglow 관리자</p>
+          </div>
+        </section>
 
-      <div className="diagnostic-grid">
-        {checks.map((check) => (
-          <article className="diagnostic-card" key={check.label}>
-            {check.ok ? <CheckCircle2 /> : <XCircle />}
-            <div>
-              <span>{check.label}</span>
-              <code>{maskEmpty(check.value)}</code>
-            </div>
-          </article>
-        ))}
-      </div>
+        <section className="settings-group">
+          <p className="settings-caption">계정</p>
+          <div className="settings-box">
+            <SettingsRow icon={<Lock />} label="비밀번호 변경" />
+          </div>
+        </section>
 
-      <section className="panel">
-        <div className="panel-header">
-          <div>
-            <p className="eyebrow">Runtime</p>
-            <h2>Public configuration</h2>
+        <section className="settings-group">
+          <p className="settings-caption">기타</p>
+          <div className="settings-box">
+            <SettingsRow icon={<HelpCircle />} label="개인정보처리방침" />
+            <div className="settings-divider" />
+            <SettingsRow icon={<FileText />} label="이용약관" />
           </div>
-        </div>
-        <div className="settings-table">
-          <div>
-            <span>Mock service</span>
-            <strong>{String(env.useMockService)}</strong>
-          </div>
-          <div>
-            <span>Vote create path</span>
-            <strong>{env.voteCreatePath}</strong>
-          </div>
-          <div>
-            <span>AWS region</span>
-            <strong>{env.awsRegion}</strong>
-          </div>
-          <div>
-            <span>S3 bucket</span>
-            <strong>{env.s3Bucket}</strong>
-          </div>
-          <div>
-            <span>S3 image prefix</span>
-            <strong>{env.s3QuestionImagePrefix}</strong>
-          </div>
-          <div>
-            <span>Cognito identity pool</span>
-            <strong>{maskEmpty(env.cognitoIdentityPoolId)}</strong>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <div className="diagnostic-notes">
-        <div>
-          <Wifi size={20} />
-          <span>Firebase Hosting origin은 Spring CORS allowlist에 포함되어야 합니다.</span>
+        <div className="settings-actions">
+          <AdminButton
+            fullWidth
+            icon={<LogOut size={18} />}
+            onClick={() => setModal('logout')}
+            variant="secondary"
+          >
+            로그아웃
+          </AdminButton>
+          <AdminButton
+            fullWidth
+            icon={<ShieldAlert size={18} />}
+            onClick={() => setModal('delete')}
+            variant="danger"
+          >
+            회원탈퇴
+          </AdminButton>
         </div>
-        <div>
-          <ShieldCheck size={20} />
-          <span>비밀번호, cookie, token, 장기 AWS key는 diagnostics에 표시하지 않습니다.</span>
-        </div>
-      </div>
+
+        <footer className="settings-footer">© 2026 Taglow</footer>
+      </main>
+
+      <ConfirmModal
+        actionLabel="로그아웃"
+        description="현재 관리자 세션을 종료하고 로그인 화면으로 이동합니다."
+        isOpen={modal === 'logout'}
+        onClose={() => setModal(undefined)}
+        onConfirm={() => void confirmLogout()}
+        title="로그아웃할까요?"
+      />
+      <ConfirmModal
+        actionLabel="회원탈퇴"
+        description="프로토타입에 저장된 계정과 세션 정보를 이 브라우저에서 삭제합니다."
+        isOpen={modal === 'delete'}
+        onClose={() => setModal(undefined)}
+        onConfirm={() => void confirmDelete()}
+        title="회원탈퇴할까요?"
+        tone="danger"
+      />
     </section>
   );
 }

@@ -1,21 +1,31 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { AdminLayout } from '../components/AdminLayout';
+import { AuthLayout } from '../components/AuthLayout';
 import { LoginPage } from '../view/auth/LoginPage';
 import { SignupPage } from '../view/auth/SignupPage';
 import { AdminDiagnosticsPage } from '../view/diagnostics/AdminDiagnosticsPage';
 import { QuestionEditorPage } from '../view/questions/QuestionEditorPage';
-import { AdminShell } from '../view/common/AdminShell';
 import { VoteCreatePage } from '../view/votes/VoteCreatePage';
 import { VoteDetailPage } from '../view/votes/VoteDetailPage';
 import { VoteListPage } from '../view/votes/VoteListPage';
+import { VotePollDetailPage } from '../view/votes/VotePollDetailPage';
+import { VoteSharePage } from '../view/votes/VoteSharePage';
 import { useAuthController } from '../api/controller/useAuthController';
+
+const SessionLoader = () => (
+  <div className="screen-loader">
+    <span>세션을 확인하는 중입니다.</span>
+    <small>오래 걸리면 새로고침하거나 잠시 후 다시 시도해주세요.</small>
+  </div>
+);
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const auth = useAuthController();
   const location = useLocation();
 
   if (auth.isCheckingSession) {
-    return <div className="screen-loader">세션을 확인하는 중입니다.</div>;
+    return <SessionLoader />;
   }
 
   if (!auth.user) {
@@ -31,27 +41,27 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return <AdminLayout>{children}</AdminLayout>;
 }
 
 function PublicOnlyRoute({ children }: { children: ReactNode }) {
   const auth = useAuthController();
 
   if (auth.isCheckingSession) {
-    return <div className="screen-loader">세션을 확인하는 중입니다.</div>;
+    return <SessionLoader />;
   }
 
   if (auth.canManage) {
-    return <Navigate to="/votes" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
-  return children;
+  return <AuthLayout>{children}</AuthLayout>;
 }
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/votes" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route
         path="/login"
         element={
@@ -69,7 +79,7 @@ export function AppRouter() {
         }
       />
       <Route
-        path="/votes"
+        path="/admin"
         element={
           <ProtectedRoute>
             <VoteListPage />
@@ -77,7 +87,7 @@ export function AppRouter() {
         }
       />
       <Route
-        path="/votes/new"
+        path="/admin/create"
         element={
           <ProtectedRoute>
             <VoteCreatePage />
@@ -85,7 +95,7 @@ export function AppRouter() {
         }
       />
       <Route
-        path="/votes/:voteId"
+        path="/admin/category/:voteId"
         element={
           <ProtectedRoute>
             <VoteDetailPage />
@@ -93,7 +103,7 @@ export function AppRouter() {
         }
       />
       <Route
-        path="/votes/:voteId/questions/new"
+        path="/admin/category/:voteId/add-option"
         element={
           <ProtectedRoute>
             <QuestionEditorPage />
@@ -101,22 +111,66 @@ export function AppRouter() {
         }
       />
       <Route
-        path="/votes/:voteId/questions/:questionId"
+        path="/admin/category/:voteId/poll/:questionId"
         element={
           <ProtectedRoute>
-            <QuestionEditorPage />
+            <VotePollDetailPage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/diagnostics"
+        path="/admin/category/:voteId/share/:questionId"
+        element={
+          <ProtectedRoute>
+            <VoteSharePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
         element={
           <ProtectedRoute>
             <AdminDiagnosticsPage />
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/votes" replace />} />
+      <Route path="/votes" element={<Navigate to="/admin" replace />} />
+      <Route path="/votes/new" element={<Navigate to="/admin/create" replace />} />
+      <Route path="/votes/:voteId" element={<NavigateToVoteDetail />} />
+      <Route path="/votes/:voteId/questions/new" element={<NavigateToNewQuestion />} />
+      <Route path="/votes/:voteId/questions/:questionId" element={<NavigateToPoll />} />
+      <Route path="/diagnostics" element={<Navigate to="/admin/settings" replace />} />
+      <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
+  );
+}
+
+function NavigateToVoteDetail() {
+  const location = useLocation();
+  const voteId = location.pathname.split('/').filter(Boolean).at(-1);
+  return <Navigate to={voteId ? `/admin/category/${voteId}` : '/admin'} replace />;
+}
+
+function NavigateToNewQuestion() {
+  const location = useLocation();
+  const parts = location.pathname.split('/').filter(Boolean);
+  const voteId = parts.at(1);
+  return <Navigate to={voteId ? `/admin/category/${voteId}/add-option` : '/admin'} replace />;
+}
+
+function NavigateToPoll() {
+  const location = useLocation();
+  const parts = location.pathname.split('/').filter(Boolean);
+  const voteId = parts.at(1);
+  const questionId = parts.at(3);
+  return (
+    <Navigate
+      to={
+        voteId && questionId
+          ? `/admin/category/${voteId}/poll/${questionId}`
+          : '/admin'
+      }
+      replace
+    />
   );
 }

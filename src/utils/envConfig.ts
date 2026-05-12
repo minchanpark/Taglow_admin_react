@@ -23,13 +23,15 @@ const readBoolean = (key: string, fallback: boolean) => {
 };
 
 export const createEnvConfig = (): EnvConfig => ({
-  apiBaseUrl: readEnv('VITE_TAGLOW_API_BASE_URL') ?? 'https://vote.newdawnsoi.site',
+  apiBaseUrl:
+    readEnv('VITE_TAGLOW_API_BASE_URL') ??
+    (import.meta.env.DEV ? '' : 'https://vote.newdawnsoi.site'),
   participantBaseUrl:
     readEnv('VITE_TAGLOW_PARTICIPANT_BASE_URL') ??
     'https://taglow-participant.web.app',
   playerBaseUrl:
     readEnv('VITE_TAGLOW_PLAYER_BASE_URL') ?? 'https://taglow-player.web.app',
-  useMockService: readBoolean('VITE_TAGLOW_USE_MOCK_SERVICE', true),
+  useMockService: readBoolean('VITE_TAGLOW_USE_MOCK_SERVICE', false),
   voteCreatePath: readEnv('VITE_TAGLOW_VOTE_CREATE_PATH') ?? '/api/votes',
   awsRegion: readEnv('VITE_TAGLOW_AWS_REGION') ?? 'ap-northeast-2',
   cognitoIdentityPoolId: readEnv('VITE_TAGLOW_COGNITO_IDENTITY_POOL_ID') ?? '',

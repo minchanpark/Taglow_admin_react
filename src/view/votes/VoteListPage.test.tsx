@@ -4,11 +4,11 @@ import { renderWithProviders } from '../../test/renderWithProviders';
 import { VoteListPage } from './VoteListPage';
 
 describe('VoteListPage', () => {
-  it('renders mock votes and quick create controls', async () => {
-    renderWithProviders(<VoteListPage />, { route: '/votes' });
+  it('renders mock categories and create entry', async () => {
+    renderWithProviders(<VoteListPage />, { route: '/admin' });
 
     expect(await screen.findByText('봄 팝업 스토어 현장 투표')).toBeInTheDocument();
-    expect(screen.getByLabelText('vote 검색')).toBeInTheDocument();
-    expect(screen.getByText('빠른 vote 생성')).toBeInTheDocument();
+    expect(screen.getByText('투표 관리')).toBeInTheDocument();
+    expect(screen.getByText('새로운 카테고리 만들기')).toBeInTheDocument();
   });
 });

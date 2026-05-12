@@ -80,12 +80,6 @@ export function useQuestionEditorController(input: {
       setSaveErrorMessage(titleResult.message);
       throw new Error(titleResult.message);
     }
-    const detailResult = validateRequired(payload.detail, '질문 설명');
-    if (!detailResult.isValid) {
-      setSaveErrorMessage(detailResult.message);
-      throw new Error(detailResult.message);
-    }
-
     const imageUrl = uploadResult?.publicUrl ?? payload.imageUrl ?? question?.imageUrl;
     const imageRatio =
       uploadResult?.imageRatio ?? payload.imageRatio ?? question?.imageRatio;
@@ -98,7 +92,7 @@ export function useQuestionEditorController(input: {
     try {
       return await saveMutation.mutateAsync({
         title: payload.title,
-        detail: payload.detail,
+        detail: payload.detail.trim(),
         imageUrl,
         imageRatio,
       });
@@ -122,5 +116,9 @@ export function useQuestionEditorController(input: {
     saveErrorMessage,
     selectImage,
     saveQuestion,
+    clearSelection: () => {
+      setUploadResult(undefined);
+      setPreviewUrl(undefined);
+    },
   };
 }

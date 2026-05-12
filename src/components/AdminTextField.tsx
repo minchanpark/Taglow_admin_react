@@ -15,7 +15,7 @@ export function AdminTextField({
 }: AdminTextFieldProps) {
   const fieldId = id ?? props.name ?? label;
   return (
-    <label className="field" htmlFor={fieldId}>
+    <label className="field underline-field" htmlFor={fieldId}>
       <span className="field-label">{label}</span>
       <input id={fieldId} className="field-input" {...props} />
       {errorMessage ? (

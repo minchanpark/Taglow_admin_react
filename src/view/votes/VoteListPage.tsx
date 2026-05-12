@@ -1,114 +1,74 @@
-import { Plus, RefreshCw, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useVoteListController } from '../../api/controller/useVoteListController';
-import { AdminButton } from '../common/AdminButton';
-import { AdminMessage } from '../common/AdminMessage';
-import { AdminTextField } from '../common/AdminTextField';
+import { AdminMessage } from '../../components/AdminMessage';
 
-type CreateVoteForm = {
-  name: string;
+const formatDate = (value?: string) => {
+  if (!value) return '생성일 -';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '생성일 -';
+  return `생성일 ${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}.${String(date.getDate()).padStart(2, '0')}`;
 };
 
 export function VoteListPage() {
   const controller = useVoteListController();
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const { handleSubmit, register, reset } = useForm<CreateVoteForm>();
-
-  const filteredVotes = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    if (!keyword) return controller.votes;
-    return controller.votes.filter((vote) =>
-      vote.name.toLowerCase().includes(keyword),
-    );
-  }, [controller.votes, search]);
-
-  const submit = handleSubmit(async (values) => {
-    const vote = await controller.createVote(values.name);
-    reset();
-    navigate(`/votes/${vote.id}`);
-  });
 
   return (
-    <section className="page-stack">
-      <div className="page-header">
+    <section className="admin-screen surface-screen">
+      <header className="category-header">
         <div>
-          <p className="eyebrow">Vote Operations</p>
-          <h1>Vote 목록</h1>
-          <p>현장 투표를 만들고 question, QR, player 링크를 관리합니다.</p>
+          <h1>투표 관리</h1>
+          <p>총 {controller.votes.length}개의 카테고리</p>
         </div>
-        <Link className="admin-link-button" to="/votes/new">
-          <Plus size={18} />
-          새 vote
+        <Link
+          aria-label="설정"
+          className="settings-icon-button"
+          to="/admin/settings"
+        >
+          <Settings />
         </Link>
-      </div>
+      </header>
 
-      <div className="toolbar">
-        <label className="search-box">
-          <Search size={18} />
-          <input
-            aria-label="vote 검색"
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="vote 이름 검색"
-            value={search}
-          />
-        </label>
-        <AdminButton
-          icon={<RefreshCw size={16} />}
-          onClick={() => void controller.refresh()}
-          variant="secondary"
-        >
-          새로고침
-        </AdminButton>
-      </div>
+      <main className="category-list">
+        {controller.errorMessage ? (
+          <AdminMessage tone="danger">{controller.errorMessage}</AdminMessage>
+        ) : null}
 
-      <form className="inline-create" onSubmit={submit}>
-        <AdminTextField
-          label="빠른 vote 생성"
-          placeholder="예: 여름 팝업 현장 투표"
-          {...register('name')}
-        />
-        <AdminButton
-          icon={<Plus size={18} />}
-          isLoading={controller.isCreating}
-          type="submit"
-        >
-          생성
-        </AdminButton>
-      </form>
-      {controller.createErrorMessage ? (
-        <AdminMessage tone="danger">{controller.createErrorMessage}</AdminMessage>
-      ) : null}
+        {controller.createErrorMessage ? (
+          <AdminMessage tone="danger">{controller.createErrorMessage}</AdminMessage>
+        ) : null}
 
-      {controller.errorMessage ? (
-        <AdminMessage tone="danger">{controller.errorMessage}</AdminMessage>
-      ) : null}
+        {controller.isLoading ? (
+          <div className="list-skeleton">카테고리를 불러오는 중입니다.</div>
+        ) : null}
 
-      {controller.isLoading ? (
-        <div className="list-skeleton">vote 목록을 불러오는 중입니다.</div>
-      ) : filteredVotes.length === 0 ? (
-        <div className="empty-state">
-          <strong>표시할 vote가 없습니다.</strong>
-          <span>새 vote를 만들면 participant QR과 player 링크를 준비할 수 있습니다.</span>
-        </div>
-      ) : (
-        <div className="vote-grid">
-          {filteredVotes.map((vote) => (
-            <Link className="vote-card" key={vote.id} to={`/votes/${vote.id}`}>
-              <div>
-                <span className={`status-pill status-${vote.status.toLowerCase()}`}>
-                  {vote.status}
-                </span>
-                <h2>{vote.name}</h2>
-                <p>{controller.questionCounts.get(vote.id) ?? 0} questions</p>
-              </div>
-              <small>{vote.isMine ? '내가 생성한 vote' : '공유 vote'}</small>
-            </Link>
-          ))}
-        </div>
-      )}
+        {!controller.isLoading && controller.votes.length === 0 ? (
+          <div className="empty-state">
+            <strong>아직 카테고리가 없습니다.</strong>
+            <span>새 카테고리를 만들고 세부 항목을 추가해보세요.</span>
+          </div>
+        ) : null}
+
+        {controller.votes.map((vote) => (
+          <Link className="category-card" key={vote.id} to={`/admin/category/${vote.id}`}>
+            <div className="category-card-top">
+              <h2>{vote.name}</h2>
+              <span>세부 항목 {controller.questionCounts.get(vote.id) ?? 0}개</span>
+            </div>
+            <p>{formatDate(vote.createdAt)}</p>
+          </Link>
+        ))}
+
+        <Link className="category-create-card" to="/admin/create">
+          <span>
+            <Plus />
+          </span>
+          <strong>새로운 카테고리 만들기</strong>
+        </Link>
+      </main>
     </section>
   );
 }

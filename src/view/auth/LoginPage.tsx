@@ -2,9 +2,10 @@ import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthController } from '../../api/controller/useAuthController';
-import { AdminButton } from '../common/AdminButton';
-import { AdminMessage } from '../common/AdminMessage';
-import { AdminTextField } from '../common/AdminTextField';
+import { AdminButton } from '../../components/AdminButton';
+import { AdminMessage } from '../../components/AdminMessage';
+import { AdminTextField } from '../../components/AdminTextField';
+import { AuthBrand } from './components/AuthBrand';
 
 type LoginForm = {
   name: string;
@@ -15,7 +16,7 @@ export function LoginPage() {
   const auth = useAuthController();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? '/votes';
+  const from = (location.state as { from?: string } | null)?.from ?? '/admin';
   const { handleSubmit, register } = useForm<LoginForm>({
     defaultValues: { name: 'operator', password: 'password123' },
   });
@@ -28,24 +29,14 @@ export function LoginPage() {
   });
 
   return (
-    <main className="auth-page">
-      <section className="auth-panel">
-        <div className="auth-copy">
-          <div className="brand-block">
-            <div className="brand-mark">T</div>
-            <div>
-              <strong>Taglow Admin</strong>
-              <span>Field operation console</span>
-            </div>
-          </div>
-          <h1>현장 투표 운영을 시작하세요.</h1>
-          <p>
-            vote 생성, question 이미지 업로드, 참여자 QR과 player 링크 준비를
-            한 화면에서 진행합니다.
-          </p>
+    <section className="auth-screen">
+      <div className="auth-body">
+        <AuthBrand />
+        <div className="auth-title-block">
+          <h1>태그로 남기는<br />우리의 순간.</h1>
+          <p>관리자 계정으로 로그인해 투표를 만들고 QR로 공유하세요.</p>
         </div>
-        <form className="auth-form" onSubmit={submit}>
-          <h2>로그인</h2>
+        <form className="auth-form" id="login-form" onSubmit={submit}>
           <AdminTextField label="계정명" autoComplete="username" {...register('name')} />
           <AdminTextField
             label="비밀번호"
@@ -59,22 +50,26 @@ export function LoginPage() {
           {auth.successMessage ? (
             <AdminMessage tone="success">{auth.successMessage}</AdminMessage>
           ) : null}
-          <AdminButton
-            icon={<LogIn size={18} />}
-            isLoading={auth.isSubmitting}
-            type="submit"
-          >
-            로그인
-          </AdminButton>
-          <p className="form-link">
-            계정이 없나요? <Link to="/signup">회원가입</Link>
-          </p>
           <p className="form-hint">
             Mock 계정: <code>operator/password123</code>, 권한 차단 확인:
             <code>guest/password123</code>
           </p>
         </form>
-      </section>
-    </main>
+      </div>
+      <div className="bottom-cta">
+        <AdminButton
+          fullWidth
+          icon={<LogIn size={20} />}
+          isLoading={auth.isSubmitting}
+          type="submit"
+          form="login-form"
+        >
+          로그인
+        </AdminButton>
+        <p className="bottom-link">
+          계정이 없나요? <Link to="/signup">회원가입</Link>
+        </p>
+      </div>
+    </section>
   );
 }

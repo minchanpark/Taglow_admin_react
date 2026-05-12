@@ -24,6 +24,12 @@ const createUser = (name: string): AdminUser => {
   };
 };
 
+const sessionStorageKey = 'venturous_session';
+const usersStorageKey = 'venturous_users';
+
+const canUseBrowserStorage = () =>
+  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
 export class MockAdminService implements AdminService {
   private currentUser: AdminUser | null = null;
 
@@ -75,22 +81,45 @@ export class MockAdminService implements AdminService {
 
   async signup(input: { name: string; password: string }): Promise<AdminUser> {
     this.assertPassword(input.password);
-    return createUser(input.name);
+    const user = createUser(input.name);
+    if (canUseBrowserStorage()) {
+      const storageName = input.name.trim();
+      const rawUsers = window.localStorage.getItem(usersStorageKey);
+      const users = rawUsers ? (JSON.parse(rawUsers) as Record<string, string>) : {};
+      if (users[storageName]) {
+        throw new Error('이미 사용 중인 아이디입니다.');
+      }
+      users[storageName] = input.password;
+      window.localStorage.setItem(usersStorageKey, JSON.stringify(users));
+    }
+    return user;
   }
 
   async login(input: { name: string; password: string }): Promise<AdminUser> {
     this.assertPassword(input.password);
     const user = createUser(input.name);
     this.currentUser = user;
+    if (canUseBrowserStorage()) {
+      window.localStorage.setItem(sessionStorageKey, user.name || 'guest');
+    }
     return cloneUser(user);
   }
 
   async fetchCurrentUser(): Promise<AdminUser | null> {
+    if (!this.currentUser && canUseBrowserStorage()) {
+      const sessionName = window.localStorage.getItem(sessionStorageKey);
+      if (sessionName) {
+        this.currentUser = createUser(sessionName);
+      }
+    }
     return this.currentUser ? cloneUser(this.currentUser) : null;
   }
 
   async logout(): Promise<void> {
     this.currentUser = null;
+    if (canUseBrowserStorage()) {
+      window.localStorage.removeItem(sessionStorageKey);
+    }
   }
 
   async fetchVotes(): Promise<AdminVote[]> {
@@ -178,7 +207,7 @@ export class MockAdminService implements AdminService {
     const updated: AdminQuestion = {
       ...current,
       title: input.title?.trim() || current.title,
-      detail: input.detail?.trim() || current.detail,
+      detail: input.detail === undefined ? current.detail : input.detail.trim(),
       imageUrl: input.imageUrl ?? current.imageUrl,
       imageRatio: input.imageRatio ?? current.imageRatio,
       updatedAt: nowIso(),
@@ -215,8 +244,8 @@ export class MockAdminService implements AdminService {
   }
 
   private assertPassword(password: string) {
-    if (password.length < 8) {
-      throw new Error('비밀번호는 8자 이상 입력해주세요.');
+    if (password.length < 4) {
+      throw new Error('비밀번호는 4자 이상 입력해주세요.');
     }
   }
 

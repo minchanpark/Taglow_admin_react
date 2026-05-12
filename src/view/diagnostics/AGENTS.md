@@ -1,6 +1,6 @@
-# diagnostics View Agent Guide
+# settings View Agent Guide
 
-`src/view/diagnostics`는 운영 진단 화면을 담당합니다.
+`src/view/diagnostics`는 현재 `/admin/settings` 설정 화면을 담당합니다. 디렉토리명은 MVP 초기 diagnostics 명칭을 유지합니다.
 
 ## 책임
 

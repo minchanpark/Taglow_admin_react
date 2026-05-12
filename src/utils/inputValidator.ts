@@ -11,8 +11,8 @@ export const validateName = (name: string): ValidationResult => {
 };
 
 export const validatePassword = (password: string): ValidationResult => {
-  if (password.length < 8) {
-    return { isValid: false, message: '비밀번호는 8자 이상 입력해주세요.' };
+  if (password.length < 4) {
+    return { isValid: false, message: '비밀번호는 4자 이상 입력해주세요.' };
   }
   return { isValid: true };
 };

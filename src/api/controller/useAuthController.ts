@@ -116,7 +116,7 @@ export function useAuthController() {
   return {
     user,
     canManage,
-    isCheckingSession: sessionQuery.isLoading,
+    isCheckingSession: sessionQuery.isLoading && !sessionQuery.isError,
     isSubmitting:
       loginMutation.isPending ||
       signupMutation.isPending ||

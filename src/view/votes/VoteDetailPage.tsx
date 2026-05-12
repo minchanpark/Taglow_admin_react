@@ -1,53 +1,57 @@
-import { Edit3, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Share2, Trash2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useVoteDetailController } from '../../api/controller/useVoteDetailController';
-import { AdminButton } from '../common/AdminButton';
-import { AdminMessage } from '../common/AdminMessage';
-import { AdminTextField } from '../common/AdminTextField';
-import { OperationLinkPanel } from './widgets/OperationLinkPanel';
-import { PublicPreviewPanel } from './widgets/PublicPreviewPanel';
-import { QuestionGrid } from './widgets/QuestionGrid';
-import { VoteStatusControl } from './widgets/VoteStatusControl';
+import { AdminButton } from '../../components/AdminButton';
+import { AdminHeader } from '../../components/AdminHeader';
+import { AdminMessage } from '../../components/AdminMessage';
+import { QuestionGrid } from './components/QuestionGrid';
+import { VoteStatusControl } from './components/VoteStatusControl';
 
 export function VoteDetailPage() {
   const { voteId = '' } = useParams();
   const navigate = useNavigate();
   const controller = useVoteDetailController(voteId);
-  const [nameDraft, setNameDraft] = useState('');
 
   if (controller.isLoading) {
-    return <div className="list-skeleton">vote 상세를 불러오는 중입니다.</div>;
+    return <div className="list-skeleton full-screen">세부 항목을 불러오는 중입니다.</div>;
   }
 
   if (!controller.vote) {
-    return <AdminMessage tone="danger">vote를 찾을 수 없습니다.</AdminMessage>;
+    return (
+      <section className="admin-screen surface-screen">
+        <AdminHeader backTo="/admin" title="세부 항목" />
+        <main className="admin-body">
+          <AdminMessage tone="danger">카테고리를 찾을 수 없습니다.</AdminMessage>
+        </main>
+      </section>
+    );
   }
-
-  const updateName = async () => {
-    if (!nameDraft.trim()) return;
-    await controller.updateVoteName(nameDraft);
-    setNameDraft('');
-  };
 
   const deleteVote = async () => {
     await controller.deleteVote();
-    navigate('/votes', { replace: true });
+    navigate('/admin', { replace: true });
   };
 
   return (
-    <section className="detail-layout">
-      <div className="detail-main">
-        <div className="page-header">
-          <div>
-            <p className="eyebrow">Vote Detail</p>
-            <h1>{controller.vote.name}</h1>
-            <p>{controller.questions.length}개 question을 운영 중입니다.</p>
-          </div>
-          <Link className="admin-link-button" to={`/votes/${voteId}/questions/new`}>
-            <Plus size={18} />
-            question 추가
+    <section className="admin-screen surface-screen">
+      <AdminHeader
+        backTo="/admin"
+        right={
+          <Link
+            aria-label="공유하기"
+            className="header-icon-button"
+            to={`/admin/category/${voteId}/share/all`}
+          >
+            <Share2 />
           </Link>
+        }
+        title={controller.vote.name}
+      />
+
+      <main className="admin-body">
+        <div className="detail-intro">
+          <h1>세부 항목 관리</h1>
+          <p>{controller.questions.length}개의 항목이 준비되어 있습니다.</p>
         </div>
 
         {controller.actionMessage ? (
@@ -60,47 +64,28 @@ export function VoteDetailPage() {
           <AdminMessage tone="danger">{controller.errorMessage}</AdminMessage>
         ) : null}
 
-        <div className="control-panel">
-          <VoteStatusControl
-            isSaving={controller.isSaving}
-            onChange={(status) => void controller.updateVoteStatus(status)}
-            status={controller.vote.status}
-          />
-          <div className="rename-control">
-            <AdminTextField
-              label="Vote 이름 수정"
-              onChange={(event) => setNameDraft(event.target.value)}
-              placeholder={controller.vote.name}
-              value={nameDraft}
-            />
-            <AdminButton
-              icon={<Edit3 size={16} />}
-              onClick={() => void updateName()}
-              variant="secondary"
-            >
-              적용
-            </AdminButton>
-          </div>
-          <AdminButton icon={<Trash2 size={16} />} onClick={deleteVote} variant="danger">
-            vote 삭제
-          </AdminButton>
-        </div>
-
         <QuestionGrid questions={controller.questions} voteId={voteId} />
-        <PublicPreviewPanel
-          isLoading={controller.isRefreshingPublicPreview}
-          onRefresh={() => void controller.refreshPublicPreview()}
-          preview={controller.publicPreview}
-        />
-      </div>
 
-      <OperationLinkPanel
-        links={controller.links}
-        onCopyParticipantUrl={() => void controller.copyParticipantUrl()}
-        onCopyPlayerUrl={() => void controller.copyPlayerUrl()}
-        onDownloadQr={() => void controller.downloadParticipantQr()}
-        onOpenPlayer={() => void controller.openPlayerInNewTab()}
-      />
+        <section className="settings-group">
+          <p className="settings-caption">운영 상태</p>
+          <div className="settings-box padded">
+            <VoteStatusControl
+              isSaving={controller.isSaving}
+              onChange={(status) => void controller.updateVoteStatus(status)}
+              status={controller.vote.status}
+            />
+          </div>
+        </section>
+
+        <AdminButton
+          className="settings-danger-button"
+          icon={<Trash2 size={18} />}
+          onClick={deleteVote}
+          variant="danger"
+        >
+          카테고리 삭제
+        </AdminButton>
+      </main>
     </section>
   );
 }

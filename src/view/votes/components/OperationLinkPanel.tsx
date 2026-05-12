@@ -1,7 +1,7 @@
 import { Copy, ExternalLink, QrCode, ScanLine } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { AdminVoteLinks } from '../../../api/model';
-import { AdminButton } from '../../common/AdminButton';
+import { AdminButton } from '../../../components/AdminButton';
 
 type OperationLinkPanelProps = {
   links: AdminVoteLinks;

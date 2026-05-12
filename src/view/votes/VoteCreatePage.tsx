@@ -1,10 +1,10 @@
-import { Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useVoteListController } from '../../api/controller/useVoteListController';
-import { AdminButton } from '../common/AdminButton';
-import { AdminMessage } from '../common/AdminMessage';
-import { AdminTextField } from '../common/AdminTextField';
+import { AdminButton } from '../../components/AdminButton';
+import { AdminHeader } from '../../components/AdminHeader';
+import { AdminMessage } from '../../components/AdminMessage';
+import { AdminTextField } from '../../components/AdminTextField';
 
 type CreateVoteForm = {
   name: string;
@@ -13,44 +13,43 @@ type CreateVoteForm = {
 export function VoteCreatePage() {
   const controller = useVoteListController();
   const navigate = useNavigate();
-  const { handleSubmit, register } = useForm<CreateVoteForm>();
+  const form = useForm<CreateVoteForm>({ defaultValues: { name: '' } });
+  const name = form.watch('name');
 
-  const submit = handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async (values) => {
     const vote = await controller.createVote(values.name);
-    navigate(`/votes/${vote.id}`);
+    navigate(`/admin/category/${vote.id}`);
   });
 
   return (
-    <section className="page-stack compact">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">New Vote</p>
-          <h1>새 vote 생성</h1>
-          <p>생성 후 상세 화면에서 question 이미지와 운영 링크를 준비합니다.</p>
+    <section className="admin-screen">
+      <AdminHeader backTo="/admin" title="새 카테고리 생성" titleTone="black" />
+
+      <form className="create-screen-body" id="create-category-form" onSubmit={submit}>
+        <div className="screen-intro">
+          <h1>어떤 투표를<br />만드시겠어요?</h1>
         </div>
-      </div>
-      <form className="form-card" onSubmit={submit}>
         <AdminTextField
-          label="Vote 이름"
-          placeholder="예: 브랜드 팝업 방문객 선호도"
-          {...register('name')}
+          label="투표 제목"
+          placeholder="예: 벤쳐러스 방명록"
+          {...form.register('name')}
         />
         {controller.createErrorMessage ? (
           <AdminMessage tone="danger">{controller.createErrorMessage}</AdminMessage>
         ) : null}
-        <div className="form-actions">
-          <AdminButton onClick={() => navigate('/votes')} variant="secondary">
-            취소
-          </AdminButton>
-          <AdminButton
-            icon={<Plus size={18} />}
-            isLoading={controller.isCreating}
-            type="submit"
-          >
-            생성
-          </AdminButton>
-        </div>
       </form>
+
+      <div className="bottom-cta">
+        <AdminButton
+          disabled={!name.trim()}
+          fullWidth
+          form="create-category-form"
+          isLoading={controller.isCreating}
+          type="submit"
+        >
+          다음 단계로
+        </AdminButton>
+      </div>
     </section>
   );
 }
