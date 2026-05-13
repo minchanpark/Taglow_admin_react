@@ -9,7 +9,7 @@ import {
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthController } from '../../api/controller/useAuthController';
+import { useAuthQuery } from '../../api/query/useAuthQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { ConfirmModal } from './components/ConfirmModal';
@@ -39,7 +39,7 @@ function SettingsRow({
 }
 
 export function AdminDiagnosticsPage() {
-  const auth = useAuthController();
+  const auth = useAuthQuery();
   const navigate = useNavigate();
   const [modal, setModal] = useState<ModalKind>();
   const userName = auth.user?.name || 'operator';

@@ -1,6 +1,6 @@
 import { Share2, Trash2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useVoteDetailController } from '../../api/controller/useVoteDetailController';
+import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
@@ -10,7 +10,7 @@ import { VoteStatusControl } from './components/VoteStatusControl';
 export function VoteDetailPage() {
   const { voteId = '' } = useParams();
   const navigate = useNavigate();
-  const controller = useVoteDetailController(voteId);
+  const controller = useVoteDetailQuery(voteId);
 
   if (controller.isLoading) {
     return <div className="list-skeleton full-screen">세부 항목을 불러오는 중입니다.</div>;

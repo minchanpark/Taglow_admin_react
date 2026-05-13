@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { VoteStatus } from '../model';
-import { useAdminRuntime } from '../service/adminRuntime';
+import { useAdminRuntime } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
 
-export function useVoteDetailController(voteId: string) {
+export function useVoteDetailQuery(voteId: string) {
   const {
-    adminService,
+    adminApiController,
     clipboard,
     externalLinkLauncher,
     qrExportService,
@@ -18,26 +18,26 @@ export function useVoteDetailController(voteId: string) {
 
   const voteQuery = useQuery({
     queryKey: queryKeys.vote(voteId),
-    queryFn: () => adminService.fetchVote(voteId),
+    queryFn: () => adminApiController.fetchVote(voteId),
   });
 
   const questionsQuery = useQuery({
     queryKey: queryKeys.questions(voteId),
-    queryFn: () => adminService.fetchQuestions(voteId),
+    queryFn: () => adminApiController.fetchQuestions(voteId),
   });
 
   const publicPreviewQuery = useQuery({
     queryKey: queryKeys.publicPreview(voteId),
     queryFn: async () => ({
-      display: await adminService.fetchPublicVoteDisplay(voteId),
-      questions: await adminService.fetchPublicQuestions(voteId),
+      display: await adminApiController.fetchPublicVoteDisplay(voteId),
+      questions: await adminApiController.fetchPublicQuestions(voteId),
     }),
     enabled: false,
   });
 
   const updateVoteMutation = useMutation({
     mutationFn: (input: { name?: string; status?: VoteStatus }) =>
-      adminService.updateVote({ voteId, ...input }),
+      adminApiController.updateVote({ voteId, ...input }),
     onSuccess: async (vote) => {
       queryClient.setQueryData(queryKeys.vote(voteId), vote);
       await queryClient.invalidateQueries({ queryKey: queryKeys.votes });
@@ -45,7 +45,7 @@ export function useVoteDetailController(voteId: string) {
   });
 
   const deleteVoteMutation = useMutation({
-    mutationFn: () => adminService.deleteVote(voteId),
+    mutationFn: () => adminApiController.deleteVote(voteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.votes });
     },

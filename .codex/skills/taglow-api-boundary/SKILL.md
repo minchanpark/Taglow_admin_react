@@ -1,18 +1,18 @@
 ---
 name: taglow-api-boundary
-description: "Maintain Taglow Admin API integration boundaries. Use when creating or changing AdminService, MockAdminService, OpenApiAdminService, AdminApiGateway, FetchAdminApiGateway, AdminPayloadMapper, OpenAPI generated types, endpoint paths, DTO compatibility, or server payload normalization."
+description: "Maintain Taglow Admin API integration boundaries. Use when creating or changing AdminApiController, MockAdminApiController, GatewayAdminApiController, AdminApiGateway, FetchAdminApiGateway, AdminPayloadMapper, OpenAPI generated types, endpoint paths, DTO compatibility, or server payload normalization."
 ---
 
 # Taglow API Boundary
 
 ## Purpose
 
-Keep server DTOs and endpoint details behind `AdminApiGateway` and `AdminPayloadMapper` so React views and controller hooks stay stable when the Spring API changes.
+Keep server DTOs and endpoint details behind `AdminApiGateway` and `AdminPayloadMapper` so React views and query hooks stay stable when the Spring API changes.
 
 ## Workflow
 
 1. Read `src/api/AGENTS.md`, `src/api/service/AGENTS.md`, and the nearest gateway/mapper/model guide.
-2. Start from the `AdminService` contract expected by controllers.
+2. Start from the `AdminApiController` contract expected by query hooks.
 3. Update domain models only when the app meaning changes, not because a server field changed.
 4. Put endpoint, method, credentials, CSRF/token, response normalization, and safe error mapping in gateway.
 5. Put field aliases, enum normalization, date/id normalization, request payload shaping, and `imageRatio` compatibility in mapper.
@@ -38,4 +38,4 @@ Keep server DTOs and endpoint details behind `AdminApiGateway` and `AdminPayload
 
 ## Done When
 
-No view/controller import references generated DTOs, endpoint strings, raw payload shapes, gateway, or mapper. Mapper/gateway tests cover the DTO variation or endpoint behavior that motivated the change.
+No view/query hook import references generated DTOs, endpoint strings, raw payload shapes, gateway, or mapper. Mapper/gateway tests cover the DTO variation or endpoint behavior that motivated the change.

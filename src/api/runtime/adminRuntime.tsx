@@ -11,26 +11,26 @@ import {
   createEnvConfig,
   type EnvConfig,
 } from '../../utils';
-import { createAdminService } from './adminServiceProvider';
-import type { AdminService } from './adminService';
+import { createAdminApiController } from '../controller/adminApiControllerProvider';
+import type { AdminApiController } from '../controller/adminApiController';
 import {
   BrowserExternalLinkLauncher,
   type ExternalLinkLauncher,
-} from './externalLinkLauncher';
-import { SvgQrExportService, type QrExportService } from './qrExportService';
+} from '../service/externalLinkLauncher';
+import { SvgQrExportService, type QrExportService } from '../service/qrExportService';
 import {
   BrowserQuestionImagePickerService,
   type QuestionImagePickerService,
-} from './upload/questionImagePickerService';
+} from '../service/upload/questionImagePickerService';
 import {
   MockQuestionImageUploadService,
   type QuestionImageUploadService,
-} from './index';
+} from '../service';
 import type { ClipboardHelper } from '../../utils';
 
 export type AdminRuntime = Readonly<{
   env: EnvConfig;
-  adminService: AdminService;
+  adminApiController: AdminApiController;
   urlBuilder: AdminUrlBuilder;
   clipboard: ClipboardHelper;
   qrExportService: QrExportService;
@@ -47,7 +47,7 @@ export function AdminRuntimeProvider({ children }: PropsWithChildren) {
     const downloadHelper = new BrowserBlobDownloadHelper();
     return {
       env,
-      adminService: createAdminService(env),
+      adminApiController: createAdminApiController(env),
       urlBuilder: new AdminUrlBuilder(env.participantBaseUrl, env.playerBaseUrl),
       clipboard: new BrowserClipboardHelper(),
       qrExportService: new SvgQrExportService(downloadHelper),
@@ -72,4 +72,4 @@ export const useAdminRuntime = () => {
   return runtime;
 };
 
-export const useAdminService = () => useAdminRuntime().adminService;
+export const useAdminApiController = () => useAdminRuntime().adminApiController;

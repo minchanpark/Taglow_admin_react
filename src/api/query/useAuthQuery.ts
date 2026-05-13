@@ -1,25 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { canUseAdminConsole } from '../model';
-import { useAdminRuntime } from '../service/adminRuntime';
+import { useAdminRuntime } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
 import { validateName, validatePassword } from '../../utils';
 
-export function useAuthController() {
-  const { adminService, env } = useAdminRuntime();
+export function useAuthQuery() {
+  const { adminApiController, env } = useAdminRuntime();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [successMessage, setSuccessMessage] = useState<string>();
 
   const sessionQuery = useQuery({
     queryKey: queryKeys.currentUser,
-    queryFn: () => adminService.fetchCurrentUser(),
+    queryFn: () => adminApiController.fetchCurrentUser(),
     retry: false,
   });
 
   const loginMutation = useMutation({
     mutationFn: (input: { name: string; password: string }) =>
-      adminService.login(input),
+      adminApiController.login(input),
     onSuccess: (user) => {
       queryClient.setQueryData(queryKeys.currentUser, user);
     },
@@ -27,11 +27,11 @@ export function useAuthController() {
 
   const signupMutation = useMutation({
     mutationFn: (input: { name: string; password: string }) =>
-      adminService.signup(input),
+      adminApiController.signup(input),
   });
 
   const logoutMutation = useMutation({
-    mutationFn: () => adminService.logout(),
+    mutationFn: () => adminApiController.logout(),
     onSuccess: () => {
       queryClient.clear();
       queryClient.setQueryData(queryKeys.currentUser, null);
@@ -65,7 +65,7 @@ export function useAuthController() {
       const nextUser = await loginMutation.mutateAsync(input);
       if (!canUseAdminConsole(nextUser)) {
         setErrorMessage('운영 콘솔 접근 권한이 없습니다.');
-        await adminService.logout();
+        await adminApiController.logout();
         queryClient.setQueryData(queryKeys.currentUser, null);
         return false;
       }

@@ -1,7 +1,7 @@
 import { UserPlus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthController } from '../../api/controller/useAuthController';
+import { useAuthQuery } from '../../api/query/useAuthQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
@@ -14,7 +14,7 @@ type SignupForm = {
 };
 
 export function SignupPage() {
-  const auth = useAuthController();
+  const auth = useAuthQuery();
   const navigate = useNavigate();
   const { handleSubmit, register } = useForm<SignupForm>();
 

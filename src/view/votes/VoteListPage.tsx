@@ -1,6 +1,6 @@
 import { Plus, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useVoteListController } from '../../api/controller/useVoteListController';
+import { useVoteListQuery } from '../../api/query/useVoteListQuery';
 import { AdminMessage } from '../../components/AdminMessage';
 
 const formatDate = (value?: string) => {
@@ -14,7 +14,7 @@ const formatDate = (value?: string) => {
 };
 
 export function VoteListPage() {
-  const controller = useVoteListController();
+  const controller = useVoteListQuery();
 
   return (
     <section className="admin-screen surface-screen">

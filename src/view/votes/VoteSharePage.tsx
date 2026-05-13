@@ -2,14 +2,14 @@ import { Copy, Download, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
-import { useVoteDetailController } from '../../api/controller/useVoteDetailController';
+import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
 
 export function VoteSharePage() {
   const { questionId = 'all', voteId = '' } = useParams();
-  const controller = useVoteDetailController(voteId);
+  const controller = useVoteDetailQuery(voteId);
 
   const copyLink = async () => {
     await controller.copyParticipantUrl();

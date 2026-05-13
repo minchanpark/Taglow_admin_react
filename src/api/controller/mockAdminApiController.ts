@@ -1,5 +1,5 @@
-import type { AdminService } from './adminService';
 import type { AdminQuestion, AdminUser, AdminVote, VoteStatus } from '../model';
+import type { AdminApiController } from './adminApiController';
 
 const nowIso = () => new Date().toISOString();
 
@@ -30,7 +30,7 @@ const usersStorageKey = 'venturous_users';
 const canUseBrowserStorage = () =>
   typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
-export class MockAdminService implements AdminService {
+export class MockAdminApiController implements AdminApiController {
   private currentUser: AdminUser | null = null;
 
   private votes: AdminVote[] = [

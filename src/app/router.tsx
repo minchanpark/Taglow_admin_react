@@ -11,7 +11,7 @@ import { VoteDetailPage } from '../view/votes/VoteDetailPage';
 import { VoteListPage } from '../view/votes/VoteListPage';
 import { VotePollDetailPage } from '../view/votes/VotePollDetailPage';
 import { VoteSharePage } from '../view/votes/VoteSharePage';
-import { useAuthController } from '../api/controller/useAuthController';
+import { useAuthQuery } from '../api/query/useAuthQuery';
 
 const SessionLoader = () => (
   <div className="screen-loader">
@@ -21,7 +21,7 @@ const SessionLoader = () => (
 );
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const auth = useAuthController();
+  const auth = useAuthQuery();
   const location = useLocation();
 
   if (auth.isCheckingSession) {
@@ -45,7 +45,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 function PublicOnlyRoute({ children }: { children: ReactNode }) {
-  const auth = useAuthController();
+  const auth = useAuthQuery();
 
   if (auth.canManage) {
     return <Navigate to="/admin" replace />;

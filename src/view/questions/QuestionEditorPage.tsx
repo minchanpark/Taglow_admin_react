@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuestionEditorController } from '../../api/controller/useQuestionEditorController';
+import { useQuestionEditorQuery } from '../../api/query/useQuestionEditorQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
@@ -17,7 +17,7 @@ export function QuestionEditorPage() {
   const { questionId, voteId = '' } = useParams();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState<string>();
-  const controller = useQuestionEditorController({ voteId, questionId });
+  const controller = useQuestionEditorQuery({ voteId, questionId });
   const form = useForm<QuestionFormValues>({
     defaultValues: { title: '', detail: '' },
   });

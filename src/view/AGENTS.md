@@ -5,7 +5,7 @@
 ## 책임
 
 - 로그인, vote 목록/상세, question editor, diagnostics 화면을 구성합니다.
-- Controller hook이 제공하는 view model, domain model, callback을 사용합니다.
+- Query hook이 제공하는 view model, domain model, callback을 사용합니다.
 - loading, empty, error, retry, disabled, success, fallback state를 빠짐없이 표현합니다.
 
 ## 금지

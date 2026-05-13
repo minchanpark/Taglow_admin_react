@@ -6,7 +6,7 @@
 
 - domain fixture와 raw server payload fixture를 구분해 보관합니다.
 - USER/ADMIN role 허용, unsupported role 차단, upload success/failure, API failure를 재현할 수 있게 합니다.
-- MockAdminService와 테스트 double은 production `AdminService` contract를 따릅니다.
+- MockAdminApiController와 테스트 double은 production `AdminApiController` contract를 따릅니다.
 
 ## 주의
 

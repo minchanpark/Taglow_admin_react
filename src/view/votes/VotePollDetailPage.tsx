@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft, Image as ImageIcon, Play, Type, Video, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useVoteDetailController } from '../../api/controller/useVoteDetailController';
+import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminMessage } from '../../components/AdminMessage';
 import { TagSticker } from './components/TagSticker';
 
@@ -26,7 +26,7 @@ const stickerCopy: Record<StickerKind, { label: string; quote: string }> = {
 export function VotePollDetailPage() {
   const { questionId = '', voteId = '' } = useParams();
   const navigate = useNavigate();
-  const controller = useVoteDetailController(voteId);
+  const controller = useVoteDetailQuery(voteId);
   const [selected, setSelected] = useState<StickerKind>();
 
   if (controller.isLoading) {

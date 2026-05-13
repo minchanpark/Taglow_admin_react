@@ -5,7 +5,7 @@
 ## 책임
 
 - `LoginPage`와 `SignupPage` UI를 구현합니다.
-- `useAuthController`가 제공하는 상태와 action만 호출합니다.
+- `useAuthQuery`가 제공하는 상태와 action만 호출합니다.
 - USER 또는 ADMIN role만 운영 콘솔 접근 가능하다는 정책을 화면 상태에 반영합니다.
 
 ## 주의

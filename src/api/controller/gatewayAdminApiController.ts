@@ -1,9 +1,9 @@
 import type { AdminQuestion, AdminUser, AdminVote } from '../model';
-import type { AdminService } from './adminService';
-import type { AdminApiGateway } from './gateway/adminApiGateway';
-import type { AdminPayloadMapper } from './mapper/adminPayloadMapper';
+import type { AdminApiController } from './adminApiController';
+import type { AdminApiGateway } from '../service/gateway/adminApiGateway';
+import type { AdminPayloadMapper } from '../service/mapper/adminPayloadMapper';
 
-export class GatewayAdminService implements AdminService {
+export class GatewayAdminApiController implements AdminApiController {
   private currentUser: AdminUser | null = null;
 
   constructor(

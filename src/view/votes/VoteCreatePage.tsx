@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useVoteListController } from '../../api/controller/useVoteListController';
+import { useVoteListQuery } from '../../api/query/useVoteListQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
@@ -11,7 +11,7 @@ type CreateVoteForm = {
 };
 
 export function VoteCreatePage() {
-  const controller = useVoteListController();
+  const controller = useVoteListQuery();
   const navigate = useNavigate();
   const form = useForm<CreateVoteForm>({ defaultValues: { name: '' } });
   const name = form.watch('name');

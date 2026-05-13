@@ -5,7 +5,7 @@
 ## 책임
 
 - 제목, 설명, 이미지 선택, 업로드 결과, 미리보기, `imageRatio` 표시를 구성합니다.
-- `useQuestionEditorController`와 React Hook Form을 통해 draft와 save flow를 조율합니다.
+- `useQuestionEditorQuery`와 React Hook Form을 통해 draft와 save flow를 조율합니다.
 - S3 업로드 실패와 API 저장 실패를 구분해 재시도 UX를 제공합니다.
 
 ## 주의

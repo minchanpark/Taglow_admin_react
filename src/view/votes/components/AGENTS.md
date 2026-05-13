@@ -5,7 +5,7 @@
 ## 책임
 
 - `QuestionGrid`, `VoteStatusControl`, `TagSticker` 같은 화면 전용 컴포넌트를 구현합니다.
-- props와 callback 중심으로 동작하며, controller hook 호출은 가능한 page 계층에 둡니다.
+- props와 callback 중심으로 동작하며, query hook 호출은 가능한 page 계층에 둡니다.
 
 ## 주의
 

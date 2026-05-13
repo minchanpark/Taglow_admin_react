@@ -16,9 +16,9 @@ api/controller/
   Controller hooks / view models
     ↓
 api/service/
-  AdminService contract
-  MockAdminService
-  OpenApiAdminService
+  AdminApiController contract
+  MockAdminApiController
+  GatewayAdminApiController
     ↓
 api/service/gateway + mapper
   AdminApiGateway
@@ -84,15 +84,15 @@ Zustand
 React Hook Form
   login form, signup form, vote form, question editor draft
 
-Controller Hooks
+Query Hooks
   View event orchestration, service calls, mutation composition, fallback handling
 ```
 
 정책:
-- TanStack Query query/mutation function은 `AdminService`만 호출한다.
+- TanStack Query query/mutation function은 `AdminApiController`만 호출한다.
 - Zustand store에는 raw server DTO를 저장하지 않는다.
-- Controller Hook은 Gateway나 Mapper를 직접 import하지 않는다.
-- View는 Controller Hook과 domain model만 사용한다.
+- Query Hook은 Gateway나 Mapper를 직접 import하지 않는다.
+- View는 Query Hook과 domain model만 사용한다.
 
 ---
 
@@ -139,10 +139,10 @@ src/
 │
 ├── api/
 │   ├── controller/
-│   │   ├── useAuthController.ts
-│   │   ├── useVoteListController.ts
-│   │   ├── useVoteDetailController.ts
-│   │   └── useQuestionEditorController.ts
+│   │   ├── useAuthQuery.ts
+│   │   ├── useVoteListQuery.ts
+│   │   ├── useVoteDetailQuery.ts
+│   │   └── useQuestionEditorQuery.ts
 │   ├── model/
 │   │   ├── adminUser.ts
 │   │   ├── adminAuthSession.ts
@@ -155,8 +155,8 @@ src/
 │   ├── service/
 │   │   ├── adminService.ts
 │   │   ├── adminServiceProvider.ts
-│   │   ├── mockAdminService.ts
-│   │   ├── openApiAdminService.ts
+│   │   ├── mockAdminApiController.ts
+│   │   ├── openApiAdminApiController.ts
 │   │   ├── gateway/
 │   │   │   ├── adminApiGateway.ts
 │   │   │   ├── fetchAdminApiGateway.ts
@@ -328,10 +328,10 @@ AdminPayloadMapper
   DTO shape -> React domain model
   domain command -> request payload
       ↓
-AdminService
+AdminApiController
   use case contract
       ↓
-Controller Hook
+Query Hook
       ↓
 View
 ```
@@ -387,7 +387,7 @@ View
 
 ```text
 src/api/service/
-├── openApiAdminService.ts
+├── openApiAdminApiController.ts
 ├── gateway/
 │   ├── adminApiGateway.ts
 │   ├── fetchAdminApiGateway.ts
@@ -526,12 +526,12 @@ function decodeImageRatio(value: unknown, fallback: number): number {
 
 ---
 
-## 5. AdminService 설계
+## 5. AdminApiController 설계
 
 ### 5-1. Contract
 
 ```ts
-export interface AdminService {
+export interface AdminApiController {
   signup(input: { name: string; password: string }): Promise<AdminUser>;
   login(input: { name: string; password: string }): Promise<AdminUser>;
   fetchCurrentUser(): Promise<AdminUser | null>;
@@ -569,12 +569,12 @@ export interface AdminService {
 }
 ```
 
-### 5-2. OpenApiAdminService
+### 5-2. GatewayAdminApiController
 
-`OpenApiAdminService`는 Gateway와 Mapper를 조합한다.
+`GatewayAdminApiController`는 Gateway와 Mapper를 조합한다.
 
 ```ts
-export class OpenApiAdminService implements AdminService {
+export class GatewayAdminApiController implements AdminApiController {
   constructor(
     private readonly gateway: AdminApiGateway,
     private readonly mapper: AdminPayloadMapper,
@@ -587,23 +587,23 @@ export class OpenApiAdminService implements AdminService {
 - Service는 raw payload를 Controller에 전달하지 않는다.
 - public preview payload는 운영 진단용으로 `Record<string, unknown>` 형태까지 허용하되 generated DTO를 노출하지 않는다.
 
-### 5-3. MockAdminService
+### 5-3. MockAdminApiController
 
 정책:
 - in-memory vote/question store를 사용한다.
 - USER/ADMIN role 허용 정책을 real service와 동일하게 테스트할 수 있어야 한다.
 - mock question upload URL과 imageRatio를 deterministic하게 반환한다.
-- mock과 real service는 Controller Hook에서 교체 가능해야 한다.
+- mock과 real service는 Query Hook에서 교체 가능해야 한다.
 
-### 5-4. AdminServiceProvider
+### 5-4. AdminApiControllerProvider
 
 React에서는 provider factory를 명시적으로 둔다.
 
 ```ts
-export function createAdminService(env: EnvConfig): AdminService {
-  if (env.useMockService) return new MockAdminService();
+export function createAdminApiController(env: EnvConfig): AdminApiController {
+  if (env.useMockService) return new MockAdminApiController();
 
-  return new OpenApiAdminService(
+  return new GatewayAdminApiController(
     new FetchAdminApiGateway({
       baseUrl: env.apiBaseUrl,
       voteCreatePath: env.voteCreatePath,
@@ -613,13 +613,13 @@ export function createAdminService(env: EnvConfig): AdminService {
 }
 ```
 
-React Context로 service 인스턴스를 제공하고, Controller Hook은 `useAdminService()`로 계약만 읽는다.
+React Context로 service 인스턴스를 제공하고, Query Hook은 `useAdminApiController()`로 계약만 읽는다.
 
 ---
 
-## 6. Controller Hook 설계
+## 6. Query Hook 설계
 
-### 6-1. useAuthController
+### 6-1. useAuthQuery
 
 책임:
 - session check query
@@ -650,7 +650,7 @@ type AuthController = {
 };
 ```
 
-### 6-2. useVoteListController
+### 6-2. useVoteListQuery
 
 책임:
 - vote list query
@@ -659,7 +659,7 @@ type AuthController = {
 - loading/empty/error/retry state
 - query invalidation
 
-### 6-3. useVoteDetailController
+### 6-3. useVoteDetailQuery
 
 책임:
 - vote detail query
@@ -699,7 +699,7 @@ type VoteDetailController = {
 };
 ```
 
-### 6-4. useQuestionEditorController
+### 6-4. useQuestionEditorQuery
 
 책임:
 - question form draft orchestration
@@ -1011,13 +1011,13 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - session probe 401/403 -> null
 - login 401/403 -> safe message
 
-### 14-2. Controller Hook test
+### 14-2. Query Hook test
 
 대상:
-- `useAuthController`
-- `useVoteListController`
-- `useVoteDetailController`
-- `useQuestionEditorController`
+- `useAuthQuery`
+- `useVoteListQuery`
+- `useVoteDetailQuery`
+- `useQuestionEditorQuery`
 
 검증:
 - USER/ADMIN role 허용
@@ -1088,13 +1088,13 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - `FetchAdminApiGateway` 작성
 - `AdminPayloadMapper` 작성
 - mapper/gateway unit test 작성
-- `AdminService` contract 작성
+- `AdminApiController` contract 작성
 
-### Phase 3. Mock service and controller hooks
+### Phase 3. Mock service and query hooks
 
-- `MockAdminService` 작성
+- `MockAdminApiController` 작성
 - service provider/context 작성
-- auth/vote/question Controller Hook 작성
+- auth/vote/question Query Hook 작성
 - TanStack Query key 정책 작성
 - Zustand UI/session store 작성
 
@@ -1113,7 +1113,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 
 - OpenAPI snapshot 동기화
 - generated type 생성
-- `OpenApiAdminService` 연결
+- `GatewayAdminApiController` 연결
 - cookie/CORS/CSRF 확인
 - protected vote create endpoint config 확인
 
@@ -1158,7 +1158,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 2. `src/api/model`은 안정적인 domain model만 정의한다.
 3. `src/api/service/gateway`와 `src/api/service/mapper`가 서버 DTO와 domain model 사이 중간 계층을 구성한다.
 4. View/Controller는 endpoint, generated DTO, raw payload를 직접 알지 않는다.
-5. `AdminService` 구현체는 mock과 real을 같은 contract로 교체할 수 있다.
+5. `AdminApiController` 구현체는 mock과 real을 같은 contract로 교체할 수 있다.
 6. auth, vote, question, upload, link, QR, player, diagnostics flow가 동작한다.
 7. mapper/gateway test가 서버 DTO 변화의 주요 alias와 타입 차이를 보호한다.
 8. Firebase origin에서 Spring API와 S3 CORS가 통과한다.

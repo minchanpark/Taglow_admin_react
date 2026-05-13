@@ -1,6 +1,6 @@
 import type { AdminQuestion, AdminUser, AdminVote, VoteStatus } from '../model';
 
-export interface AdminService {
+export interface AdminApiController {
   signup(input: { name: string; password: string }): Promise<AdminUser>;
   login(input: { name: string; password: string }): Promise<AdminUser>;
   fetchCurrentUser(): Promise<AdminUser | null>;

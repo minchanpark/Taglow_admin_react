@@ -1,7 +1,7 @@
 import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuthController } from '../../api/controller/useAuthController';
+import { useAuthQuery } from '../../api/query/useAuthQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminMessage } from '../../components/AdminMessage';
 import { AdminTextField } from '../../components/AdminTextField';
@@ -13,7 +13,7 @@ type LoginForm = {
 };
 
 export function LoginPage() {
-  const auth = useAuthController();
+  const auth = useAuthQuery();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/admin';

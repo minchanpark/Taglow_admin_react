@@ -1,27 +1,27 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAdminService } from '../service/adminRuntime';
+import { useAdminApiController } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
 import { validateRequired } from '../../utils';
 
-export function useVoteListController() {
-  const adminService = useAdminService();
+export function useVoteListQuery() {
+  const adminApiController = useAdminApiController();
   const queryClient = useQueryClient();
 
   const votesQuery = useQuery({
     queryKey: queryKeys.votes,
-    queryFn: () => adminService.fetchVotes(),
+    queryFn: () => adminApiController.fetchVotes(),
   });
 
   const questionCountQueries = useQueries({
     queries: (votesQuery.data ?? []).map((vote) => ({
       queryKey: queryKeys.questions(vote.id),
-      queryFn: () => adminService.fetchQuestions(vote.id),
+      queryFn: () => adminApiController.fetchQuestions(vote.id),
       enabled: votesQuery.isSuccess,
     })),
   });
 
   const createVoteMutation = useMutation({
-    mutationFn: (input: { name: string }) => adminService.createVote(input),
+    mutationFn: (input: { name: string }) => adminApiController.createVote(input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.votes });
     },

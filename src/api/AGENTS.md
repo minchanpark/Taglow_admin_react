@@ -5,16 +5,18 @@
 ## 구조
 
 ```text
-controller/  Controller hooks and view models
+query/       React Query hooks and view models
+controller/  AdminApiController contract and gateway/mock implementations
 model/       Stable React domain model
-service/     AdminService contract and implementations
+runtime/     Runtime dependency composition and provider
+service/     Side-effect services, gateway, mapper, upload/link helpers
 generated/   OpenAPI generated types/clients
 ```
 
 ## 규칙
 
-- `api/model`의 domain model은 Controller, Service, View가 공유하는 안정 계약입니다.
-- `api/controller`는 `AdminService` 계약만 호출합니다.
-- `api/service`는 Gateway와 Mapper를 조합해 domain model을 반환합니다.
+- `api/model`의 domain model은 Query Hook, API Controller, View가 공유하는 안정 계약입니다.
+- `api/query`는 `AdminApiController` 계약만 호출합니다.
+- `api/controller`는 Gateway와 Mapper를 조합해 domain model을 반환합니다.
 - generated type은 Gateway/Mapper/Service 내부 보조 타입으로만 사용합니다.
 - `api/**`에서 `view/**`를 import하지 않습니다.

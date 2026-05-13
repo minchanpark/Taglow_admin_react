@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AdminQuestion, QuestionImageUploadResult } from '../model';
-import { useAdminRuntime } from '../service/adminRuntime';
+import { useAdminRuntime } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
 import { validateRequired } from '../../utils';
 
-export function useQuestionEditorController(input: {
+export function useQuestionEditorQuery(input: {
   voteId: string;
   questionId?: string;
 }) {
-  const { adminService, imagePickerService, imageUploadService } = useAdminRuntime();
+  const { adminApiController, imagePickerService, imageUploadService } =
+    useAdminRuntime();
   const queryClient = useQueryClient();
   const [uploadResult, setUploadResult] = useState<QuestionImageUploadResult>();
   const [previewUrl, setPreviewUrl] = useState<string>();
@@ -18,7 +19,7 @@ export function useQuestionEditorController(input: {
 
   const questionsQuery = useQuery({
     queryKey: queryKeys.questions(input.voteId),
-    queryFn: () => adminService.fetchQuestions(input.voteId),
+    queryFn: () => adminApiController.fetchQuestions(input.voteId),
   });
 
   const question = useMemo<AdminQuestion | undefined>(() => {
@@ -33,12 +34,12 @@ export function useQuestionEditorController(input: {
       imageRatio: number;
     }) => {
       if (input.questionId) {
-        return adminService.updateQuestion({
+        return adminApiController.updateQuestion({
           questionId: input.questionId,
           ...payload,
         });
       }
-      return adminService.createQuestion({
+      return adminApiController.createQuestion({
         voteId: input.voteId,
         ...payload,
       });
