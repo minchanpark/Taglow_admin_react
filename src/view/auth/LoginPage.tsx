@@ -18,7 +18,9 @@ export function LoginPage() {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/admin';
   const { handleSubmit, register } = useForm<LoginForm>({
-    defaultValues: { name: 'operator', password: 'password123' },
+    defaultValues: auth.isMockService
+      ? { name: 'operator', password: 'password123' }
+      : { name: '', password: '' },
   });
 
   const submit = handleSubmit(async (values) => {
@@ -50,10 +52,14 @@ export function LoginPage() {
           {auth.successMessage ? (
             <AdminMessage tone="success">{auth.successMessage}</AdminMessage>
           ) : null}
-          <p className="form-hint">
-            Mock 계정: <code>operator/password123</code>, 권한 차단 확인:
-            <code>guest/password123</code>
-          </p>
+          {auth.isMockService ? (
+            <p className="form-hint">
+              Mock 계정: <code>operator/password123</code>, 권한 차단 확인:
+              <code>guest/password123</code>
+            </p>
+          ) : (
+            <p className="form-hint">실 서버에 등록된 관리자 계정으로 로그인해주세요.</p>
+          )}
         </form>
       </div>
       <div className="bottom-cta">

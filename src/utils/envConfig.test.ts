@@ -1,9 +1,14 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createEnvConfig } from './envConfig';
 
 describe('createEnvConfig', () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('uses the dev proxy by default in Vite dev mode', () => {
     vi.stubEnv('VITE_TAGLOW_USE_MOCK_SERVICE', '');
+    vi.stubEnv('VITE_TAGLOW_API_BASE_URL', '');
     const env = createEnvConfig();
 
     expect(env.apiBaseUrl).toBe('');
@@ -13,9 +18,16 @@ describe('createEnvConfig', () => {
     expect(env.playerBaseUrl).toContain('taglow-player');
   });
 
-  it('uses the configured real API URL when provided', () => {
+  it('keeps using the dev proxy even if an API URL is configured in dev', () => {
     vi.stubEnv('VITE_TAGLOW_API_BASE_URL', 'https://vote.newdawnsoi.site');
     vi.stubEnv('VITE_TAGLOW_USE_MOCK_SERVICE', 'false');
+
+    expect(createEnvConfig().apiBaseUrl).toBe('');
+  });
+
+  it('can force the configured real API URL for remote-api debugging', () => {
+    vi.stubEnv('VITE_TAGLOW_API_BASE_URL', 'https://vote.newdawnsoi.site');
+    vi.stubEnv('VITE_TAGLOW_FORCE_REMOTE_API', 'true');
 
     expect(createEnvConfig().apiBaseUrl).toBe('https://vote.newdawnsoi.site');
   });

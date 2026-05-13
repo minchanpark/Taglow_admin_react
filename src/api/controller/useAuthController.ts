@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { canUseAdminConsole } from '../model';
-import { useAdminService } from '../service/adminRuntime';
+import { useAdminRuntime } from '../service/adminRuntime';
 import { queryKeys } from './queryKeys';
 import { validateName, validatePassword } from '../../utils';
 
 export function useAuthController() {
-  const adminService = useAdminService();
+  const { adminService, env } = useAdminRuntime();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [successMessage, setSuccessMessage] = useState<string>();
@@ -116,6 +116,7 @@ export function useAuthController() {
   return {
     user,
     canManage,
+    isMockService: env.useMockService,
     isCheckingSession: sessionQuery.isLoading && !sessionQuery.isError,
     isSubmitting:
       loginMutation.isPending ||

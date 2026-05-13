@@ -47,10 +47,6 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 function PublicOnlyRoute({ children }: { children: ReactNode }) {
   const auth = useAuthController();
 
-  if (auth.isCheckingSession) {
-    return <SessionLoader />;
-  }
-
   if (auth.canManage) {
     return <Navigate to="/admin" replace />;
   }

@@ -13,7 +13,8 @@ export type EnvConfig = Readonly<{
 
 const readEnv = (key: string): string | undefined => {
   const metaEnv = import.meta.env as Record<string, string | undefined>;
-  return metaEnv[key];
+  const value = metaEnv[key];
+  return value?.trim() ? value : undefined;
 };
 
 const readBoolean = (key: string, fallback: boolean) => {
@@ -22,10 +23,15 @@ const readBoolean = (key: string, fallback: boolean) => {
   return value.toLowerCase() === 'true';
 };
 
+const resolveApiBaseUrl = () => {
+  if (import.meta.env.DEV && !readBoolean('VITE_TAGLOW_FORCE_REMOTE_API', false)) {
+    return '';
+  }
+  return readEnv('VITE_TAGLOW_API_BASE_URL') ?? 'https://vote.newdawnsoi.site';
+};
+
 export const createEnvConfig = (): EnvConfig => ({
-  apiBaseUrl:
-    readEnv('VITE_TAGLOW_API_BASE_URL') ??
-    (import.meta.env.DEV ? '' : 'https://vote.newdawnsoi.site'),
+  apiBaseUrl: resolveApiBaseUrl(),
   participantBaseUrl:
     readEnv('VITE_TAGLOW_PARTICIPANT_BASE_URL') ??
     'https://taglow-participant.web.app',

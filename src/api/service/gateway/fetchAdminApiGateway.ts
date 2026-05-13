@@ -234,7 +234,7 @@ export class FetchAdminApiGateway implements AdminApiGateway {
         });
       }
       throw new AdminApiError(
-        '서버에 연결할 수 없습니다. CORS 또는 네트워크 상태를 확인해주세요.',
+        '브라우저에서 서버 요청이 실패했습니다. dev 서버의 /api proxy 또는 CORS 설정을 확인해주세요.',
         { payload: error },
       );
     } finally {
