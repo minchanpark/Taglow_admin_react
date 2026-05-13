@@ -5,6 +5,7 @@ import { useAuthQuery } from '../../api/query/useAuthQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminMessage } from '../../components/AdminMessage';
 import { AdminTextField } from '../../components/AdminTextField';
+import { debugAuthFlow } from '../../utils';
 import { AuthBrand } from './components/AuthBrand';
 
 type LoginForm = {
@@ -24,10 +25,21 @@ export function LoginPage() {
   });
 
   const submit = handleSubmit(async (values) => {
+    debugAuthFlow('LoginPage.submit.valid', {
+      hasName: Boolean(values.name.trim()),
+      hasPassword: Boolean(values.password),
+      redirectTo: from,
+    });
     const success = await auth.login(values);
+    debugAuthFlow('LoginPage.submit.result', { success, redirectTo: from });
     if (success) {
+      debugAuthFlow('LoginPage.navigate', { to: from });
       navigate(from, { replace: true });
     }
+  }, (errors) => {
+    debugAuthFlow('LoginPage.submit.invalid', {
+      fields: Object.keys(errors),
+    });
   });
 
   return (
@@ -67,6 +79,12 @@ export function LoginPage() {
           fullWidth
           icon={<LogIn size={20} />}
           isLoading={auth.isSubmitting}
+          onClick={() =>
+            debugAuthFlow('LoginPage.button.click', {
+              form: 'login-form',
+              isSubmitting: auth.isSubmitting,
+            })
+          }
           type="submit"
           form="login-form"
         >

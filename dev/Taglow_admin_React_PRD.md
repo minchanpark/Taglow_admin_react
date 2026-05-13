@@ -424,7 +424,7 @@ VITE_TAGLOW_API_BASE_URL=https://vote.newdawnsoi.site
 VITE_TAGLOW_PARTICIPANT_BASE_URL=https://taglow-participant.web.app
 VITE_TAGLOW_PLAYER_BASE_URL=https://taglow-player.web.app
 VITE_TAGLOW_USE_MOCK_SERVICE=false
-VITE_TAGLOW_VOTE_CREATE_PATH=/api/votes
+VITE_TAGLOW_VOTE_CREATE_PATH=/api/public/votes
 
 VITE_TAGLOW_AWS_REGION=ap-northeast-2
 VITE_TAGLOW_COGNITO_IDENTITY_POOL_ID=ap-northeast-2:...

@@ -11,6 +11,7 @@ import {
   createEnvConfig,
   type EnvConfig,
 } from '../../utils';
+import { debugAuthFlow } from '../../utils';
 import { createAdminApiController } from '../controller/adminApiControllerProvider';
 import type { AdminApiController } from '../controller/adminApiController';
 import {
@@ -45,6 +46,11 @@ export function AdminRuntimeProvider({ children }: PropsWithChildren) {
   const runtime = useMemo<AdminRuntime>(() => {
     const env = createEnvConfig();
     const downloadHelper = new BrowserBlobDownloadHelper();
+    debugAuthFlow('AdminRuntime.create', {
+      useMockService: env.useMockService,
+      apiMode: env.apiBaseUrl ? 'remote' : 'dev-proxy',
+      voteCreatePath: env.voteCreatePath,
+    });
     return {
       env,
       adminApiController: createAdminApiController(env),

@@ -453,7 +453,7 @@ type FetchAdminApiGatewayOptions = {
 
 정책:
 - 기본 `credentials`는 `include`다.
-- 임시 `/api/public/votes` 생성 경로를 쓸 때는 해당 요청만 credentials를 `omit` 또는 `same-origin`으로 override할 수 있다.
+- 임시 `/api/public/votes` 생성 경로도 현재 서버가 세션을 확인하므로 기본 `credentials: include`를 유지한다.
 - protected `/api/votes` 생성 endpoint가 확정되면 config만 바꾼다.
 - login response와 password payload는 debug log에서 redaction한다.
 - 401/403 session probe는 `null` session으로 정규화한다.
@@ -886,7 +886,7 @@ const paths = {
 - cookie cross-origin이면 `SameSite=None; Secure` 확인
 
 주의:
-- `POST /api/public/votes` 임시 경로는 credentialed CORS가 아닐 수 있으므로 해당 요청만 credentials override 가능
+- `POST /api/public/votes` 임시 경로도 현재 서버가 세션을 확인하므로 `credentials: include` 유지
 - protected `POST /api/votes` 확정 후 override 제거
 
 ### 10-3. Error mapping
@@ -1017,7 +1017,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - body 없는 GET에 `Content-Type` 미추가
 - body 있는 POST/PATCH에 JSON `Content-Type` 추가
 - credentials 기본값
-- `/api/public/votes` 임시 credentials override
+- `/api/public/votes` 임시 생성 경로도 기본 credentials 유지
 - session probe 401/403 -> null
 - login 401/403 -> safe message
 

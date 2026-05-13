@@ -1,4 +1,5 @@
 import type { AdminApiGateway } from './adminApiGateway';
+import { debugAuthFlow } from '../../../utils';
 import { AdminApiError, isUnauthorizedStatus } from './adminApiErrors';
 
 type FetchAdminApiGatewayOptions = {
@@ -42,9 +43,6 @@ const normalizeBaseUrl = (baseUrl: string) => baseUrl.replace(/\/+$/, '');
 
 const normalizePath = (path: string) => (path.startsWith('/') ? path : `/${path}`);
 
-const isPublicVoteCreatePath = (path: string) =>
-  normalizePath(path).startsWith('/api/public/');
-
 const extractArray = (payload: unknown): Array<Record<string, unknown>> => {
   if (Array.isArray(payload)) {
     return payload.filter(isRecord);
@@ -80,6 +78,8 @@ const extractMessage = (payload: unknown, fallback: string) => {
   return typeof message === 'string' && message.trim() ? message : fallback;
 };
 
+const createDefaultFetch = (): typeof fetch => globalThis.fetch.bind(globalThis);
+
 export class FetchAdminApiGateway implements AdminApiGateway {
   private readonly baseUrl: string;
   private readonly credentials: RequestCredentials;
@@ -91,7 +91,7 @@ export class FetchAdminApiGateway implements AdminApiGateway {
   constructor(options: FetchAdminApiGatewayOptions) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
     this.credentials = options.credentials ?? 'include';
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl ?? createDefaultFetch();
     this.timeoutMs = options.timeoutMs ?? 10_000;
     this.voteCreatePath = normalizePath(options.voteCreatePath);
     this.csrfTokenProvider = options.csrfTokenProvider;
@@ -102,10 +102,16 @@ export class FetchAdminApiGateway implements AdminApiGateway {
   }
 
   login(payload: Record<string, unknown>) {
+    debugAuthFlow('FetchAdminApiGateway.login', {
+      path: paths.login,
+      payloadKeys: Object.keys(payload),
+      containsPassword: Object.hasOwn(payload, 'password'),
+    });
     return this.requestRecord(paths.login, { method: 'POST', body: payload });
   }
 
   me() {
+    debugAuthFlow('FetchAdminApiGateway.me', { path: paths.me });
     return this.requestOptionalRecord(paths.me, { sessionProbe: true });
   }
 
@@ -121,7 +127,6 @@ export class FetchAdminApiGateway implements AdminApiGateway {
     return this.requestRecord(this.voteCreatePath, {
       method: 'POST',
       body: payload,
-      credentials: isPublicVoteCreatePath(this.voteCreatePath) ? 'omit' : undefined,
     });
   }
 
@@ -218,9 +223,19 @@ export class FetchAdminApiGateway implements AdminApiGateway {
 
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), this.timeoutMs);
+    const requestUrl = `${this.baseUrl}${normalizePath(path)}`;
+    debugAuthFlow('FetchAdminApiGateway.request.start', {
+      method,
+      path: normalizePath(path),
+      requestUrl,
+      credentials: options.credentials ?? this.credentials,
+      hasBody: Boolean(options.body),
+      headerKeys: Object.keys(headers),
+      sessionProbe: Boolean(options.sessionProbe),
+    });
     let response: Response;
     try {
-      response = await this.fetchImpl(`${this.baseUrl}${normalizePath(path)}`, {
+      response = await this.fetchImpl(requestUrl, {
         method,
         credentials: options.credentials ?? this.credentials,
         headers,
@@ -228,6 +243,11 @@ export class FetchAdminApiGateway implements AdminApiGateway {
         signal: controller.signal,
       });
     } catch (error) {
+      debugAuthFlow('FetchAdminApiGateway.request.networkError', {
+        method,
+        path: normalizePath(path),
+        message: error instanceof Error ? error.message : 'unknown error',
+      });
       if (error instanceof DOMException && error.name === 'AbortError') {
         throw new AdminApiError('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.', {
           payload: error,
@@ -242,11 +262,23 @@ export class FetchAdminApiGateway implements AdminApiGateway {
     }
 
     const payload = await this.parseResponse(response);
+    debugAuthFlow('FetchAdminApiGateway.request.response', {
+      method,
+      path: normalizePath(path),
+      ok: response.ok,
+      status: response.status,
+      payloadKind: Array.isArray(payload) ? 'array' : typeof payload,
+      payloadKeys: isRecord(payload) ? Object.keys(payload) : undefined,
+    });
     if (response.ok) {
       return payload;
     }
 
     if (options.sessionProbe && isUnauthorizedStatus(response.status)) {
+      debugAuthFlow('FetchAdminApiGateway.request.sessionProbeUnauthorized', {
+        status: response.status,
+        path: normalizePath(path),
+      });
       return null;
     }
 
@@ -254,6 +286,11 @@ export class FetchAdminApiGateway implements AdminApiGateway {
       response.status === 401 || response.status === 403
         ? '인증이 필요하거나 접근 권한이 없습니다.'
         : '서버 요청에 실패했습니다.';
+    debugAuthFlow('FetchAdminApiGateway.request.errorResponse', {
+      status: response.status,
+      path: normalizePath(path),
+      message: extractMessage(payload, fallback),
+    });
     throw new AdminApiError(extractMessage(payload, fallback), {
       status: response.status,
       payload,

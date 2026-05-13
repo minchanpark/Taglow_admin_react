@@ -1,4 +1,5 @@
 import type { AdminQuestion, AdminUser, AdminVote, VoteStatus } from '../model';
+import { debugAuthFlow } from '../../utils';
 import type { AdminApiController } from './adminApiController';
 
 const nowIso = () => new Date().toISOString();
@@ -96,22 +97,35 @@ export class MockAdminApiController implements AdminApiController {
   }
 
   async login(input: { name: string; password: string }): Promise<AdminUser> {
+    debugAuthFlow('MockAdminApiController.login.start', {
+      hasName: Boolean(input.name.trim()),
+      hasPassword: Boolean(input.password),
+    });
     this.assertPassword(input.password);
     const user = createUser(input.name);
     this.currentUser = user;
     if (canUseBrowserStorage()) {
       window.localStorage.setItem(sessionStorageKey, user.name || 'guest');
     }
+    debugAuthFlow('MockAdminApiController.login.done', {
+      userId: user.id,
+      roleCount: user.roles.size,
+    });
     return cloneUser(user);
   }
 
   async fetchCurrentUser(): Promise<AdminUser | null> {
+    debugAuthFlow('MockAdminApiController.fetchCurrentUser.start');
     if (!this.currentUser && canUseBrowserStorage()) {
       const sessionName = window.localStorage.getItem(sessionStorageKey);
       if (sessionName) {
         this.currentUser = createUser(sessionName);
       }
     }
+    debugAuthFlow('MockAdminApiController.fetchCurrentUser.done', {
+      hasUser: Boolean(this.currentUser),
+      roleCount: this.currentUser?.roles.size ?? 0,
+    });
     return this.currentUser ? cloneUser(this.currentUser) : null;
   }
 

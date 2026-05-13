@@ -27,6 +27,42 @@ describe('FetchAdminApiGateway', () => {
     expect(init.headers).toEqual({ Accept: 'application/json' });
   });
 
+  it('binds the default browser fetch before calling it', async () => {
+    const originalFetch = globalThis.fetch;
+    const fetchMock = vi.fn(function (
+      this: typeof globalThis,
+      _input: RequestInfo | URL,
+      _init?: RequestInit,
+    ) {
+      expect(this).toBe(globalThis);
+      return Promise.resolve(jsonResponse({ content: [] }));
+    });
+    Object.defineProperty(globalThis, 'fetch', {
+      configurable: true,
+      value: fetchMock,
+      writable: true,
+    });
+    const gateway = new FetchAdminApiGateway({
+      baseUrl: 'https://vote.newdawnsoi.site/',
+      voteCreatePath: '/api/votes',
+    });
+
+    try {
+      await gateway.fetchVotes();
+    } finally {
+      Object.defineProperty(globalThis, 'fetch', {
+        configurable: true,
+        value: originalFetch,
+        writable: true,
+      });
+    }
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://vote.newdawnsoi.site/api/votes',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
   it('encodes path segments and sends JSON Content-Type for PATCH bodies', async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ id: 'a/b', name: '수정' }));
     const gateway = new FetchAdminApiGateway({
@@ -54,7 +90,7 @@ describe('FetchAdminApiGateway', () => {
     });
   });
 
-  it('omits credentials for temporary public vote create endpoints', async () => {
+  it('keeps credentials for temporary public vote create endpoints', async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ id: 1, name: '공개 생성' }));
     const gateway = new FetchAdminApiGateway({
       baseUrl: 'https://vote.newdawnsoi.site',
@@ -66,7 +102,7 @@ describe('FetchAdminApiGateway', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://vote.newdawnsoi.site/api/public/votes',
-      expect.objectContaining({ credentials: 'omit' }),
+      expect.objectContaining({ credentials: 'include' }),
     );
   });
 

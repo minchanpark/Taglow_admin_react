@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { canUseAdminConsole } from '../model';
 import { useAdminRuntime } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
-import { validateName, validatePassword } from '../../utils';
+import { debugAuthFlow, validateName, validatePassword } from '../../utils';
 
 export function useAuthQuery() {
   const { adminApiController, env } = useAdminRuntime();
@@ -13,15 +13,44 @@ export function useAuthQuery() {
 
   const sessionQuery = useQuery({
     queryKey: queryKeys.currentUser,
-    queryFn: () => adminApiController.fetchCurrentUser(),
+    queryFn: async () => {
+      debugAuthFlow('useAuthQuery.session.start', {
+        queryKey: queryKeys.currentUser.join('/'),
+      });
+      const currentUser = await adminApiController.fetchCurrentUser();
+      debugAuthFlow('useAuthQuery.session.result', {
+        hasUser: Boolean(currentUser),
+        roleCount: currentUser?.roles.size ?? 0,
+      });
+      return currentUser;
+    },
     retry: false,
   });
 
   const loginMutation = useMutation({
-    mutationFn: (input: { name: string; password: string }) =>
-      adminApiController.login(input),
+    mutationFn: async (input: { name: string; password: string }) => {
+      debugAuthFlow('useAuthQuery.loginMutation.start', {
+        hasName: Boolean(input.name.trim()),
+        hasPassword: Boolean(input.password),
+      });
+      const user = await adminApiController.login(input);
+      debugAuthFlow('useAuthQuery.loginMutation.result', {
+        userId: user.id,
+        roleCount: user.roles.size,
+      });
+      return user;
+    },
     onSuccess: (user) => {
+      debugAuthFlow('useAuthQuery.loginMutation.cacheUser', {
+        userId: user.id,
+        roleCount: user.roles.size,
+      });
       queryClient.setQueryData(queryKeys.currentUser, user);
+    },
+    onError: (error) => {
+      debugAuthFlow('useAuthQuery.loginMutation.error', {
+        message: error instanceof Error ? error.message : 'unknown error',
+      });
     },
   });
 
@@ -49,29 +78,44 @@ export function useAuthQuery() {
   };
 
   const login = async (input: { name: string; password: string }) => {
+    debugAuthFlow('useAuthQuery.login.called', {
+      hasName: Boolean(input.name.trim()),
+      hasPassword: Boolean(input.password),
+    });
     clearMessages();
-    const nameResult = validateName(input.name);
-    if (!nameResult.isValid) {
-      setErrorMessage(nameResult.message);
+    if (!input.name.trim()) {
+      debugAuthFlow('useAuthQuery.login.validationBlocked', { field: 'name' });
+      setErrorMessage('아이디를 입력해주세요.');
       return false;
     }
-    const passwordResult = validatePassword(input.password);
-    if (!passwordResult.isValid) {
-      setErrorMessage(passwordResult.message);
+    if (!input.password) {
+      debugAuthFlow('useAuthQuery.login.validationBlocked', { field: 'password' });
+      setErrorMessage('비밀번호를 입력해주세요.');
       return false;
     }
 
     try {
+      debugAuthFlow('useAuthQuery.login.submitMutation');
       const nextUser = await loginMutation.mutateAsync(input);
+      debugAuthFlow('useAuthQuery.login.roleCheck', {
+        userId: nextUser.id,
+        roleCount: nextUser.roles.size,
+        canUseAdminConsole: canUseAdminConsole(nextUser),
+      });
       if (!canUseAdminConsole(nextUser)) {
         setErrorMessage('운영 콘솔 접근 권한이 없습니다.');
+        debugAuthFlow('useAuthQuery.login.roleRejected', { userId: nextUser.id });
         await adminApiController.logout();
         queryClient.setQueryData(queryKeys.currentUser, null);
         return false;
       }
       setSuccessMessage('로그인되었습니다.');
+      debugAuthFlow('useAuthQuery.login.success', { userId: nextUser.id });
       return true;
     } catch (error) {
+      debugAuthFlow('useAuthQuery.login.error', {
+        message: error instanceof Error ? error.message : 'unknown error',
+      });
       setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
       return false;
     }

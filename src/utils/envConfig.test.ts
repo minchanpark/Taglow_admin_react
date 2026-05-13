@@ -13,7 +13,7 @@ describe('createEnvConfig', () => {
 
     expect(env.apiBaseUrl).toBe('');
     expect(env.useMockService).toBe(false);
-    expect(env.voteCreatePath).toBe('/api/votes');
+    expect(env.voteCreatePath).toBe('/api/public/votes');
     expect(env.participantBaseUrl).toContain('taglow-participant');
     expect(env.playerBaseUrl).toContain('taglow-player');
   });
@@ -30,6 +30,12 @@ describe('createEnvConfig', () => {
     vi.stubEnv('VITE_TAGLOW_FORCE_REMOTE_API', 'true');
 
     expect(createEnvConfig().apiBaseUrl).toBe('https://vote.newdawnsoi.site');
+  });
+
+  it('can opt into the protected vote create endpoint when the server supports it', () => {
+    vi.stubEnv('VITE_TAGLOW_VOTE_CREATE_PATH', '/api/votes');
+
+    expect(createEnvConfig().voteCreatePath).toBe('/api/votes');
   });
 
   it('can opt into the mock service for tests and local demos', () => {

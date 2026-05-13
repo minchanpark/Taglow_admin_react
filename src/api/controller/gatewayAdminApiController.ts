@@ -1,4 +1,5 @@
 import type { AdminQuestion, AdminUser, AdminVote } from '../model';
+import { debugAuthFlow } from '../../utils';
 import type { AdminApiController } from './adminApiController';
 import type { AdminApiGateway } from '../service/gateway/adminApiGateway';
 import type { AdminPayloadMapper } from '../service/mapper/adminPayloadMapper';
@@ -18,29 +19,65 @@ export class GatewayAdminApiController implements AdminApiController {
   }
 
   async login(input: { name: string; password: string }): Promise<AdminUser> {
+    debugAuthFlow('GatewayAdminApiController.login.start', {
+      hasName: Boolean(input.name.trim()),
+      hasPassword: Boolean(input.password),
+    });
     const payload = this.mapper.loginToPayload(input);
+    debugAuthFlow('GatewayAdminApiController.login.payloadMapped', {
+      payloadKeys: Object.keys(payload),
+      containsPassword: Object.hasOwn(payload, 'password'),
+    });
     const response = await this.gateway.login(payload);
+    debugAuthFlow('GatewayAdminApiController.login.gatewayResponse', {
+      responseKeys: Object.keys(response),
+    });
     let user: AdminUser;
 
     try {
       user = this.mapper.userFromPayload(response, { fallbackName: input.name });
+      debugAuthFlow('GatewayAdminApiController.login.userMapped', {
+        userId: user.id,
+        roleCount: user.roles.size,
+      });
     } catch {
+      debugAuthFlow('GatewayAdminApiController.login.userMapFailed.fetchMe');
       const me = await this.gateway.me();
       if (!me) throw new Error('로그인 사용자 정보를 확인할 수 없습니다.');
       user = this.mapper.userFromPayload(me, { fallbackName: input.name });
+      debugAuthFlow('GatewayAdminApiController.login.meMapped', {
+        userId: user.id,
+        roleCount: user.roles.size,
+      });
     }
     if (user.roles.size === 0) {
+      debugAuthFlow('GatewayAdminApiController.login.rolesEmpty.fetchMe', {
+        userId: user.id,
+      });
       const me = await this.gateway.me();
       if (me) user = this.mapper.userFromPayload(me, { fallbackName: input.name });
+      debugAuthFlow('GatewayAdminApiController.login.rolesAfterMe', {
+        userId: user.id,
+        roleCount: user.roles.size,
+      });
     }
 
     this.currentUser = user;
+    debugAuthFlow('GatewayAdminApiController.login.done', {
+      userId: user.id,
+      roleCount: user.roles.size,
+    });
     return user;
   }
 
   async fetchCurrentUser(): Promise<AdminUser | null> {
+    debugAuthFlow('GatewayAdminApiController.fetchCurrentUser.start');
     const payload = await this.gateway.me();
     this.currentUser = payload ? this.mapper.userFromPayload(payload) : null;
+    debugAuthFlow('GatewayAdminApiController.fetchCurrentUser.done', {
+      hasUser: Boolean(this.currentUser),
+      roleCount: this.currentUser?.roles.size ?? 0,
+    });
     return this.currentUser;
   }
 
