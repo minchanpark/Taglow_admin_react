@@ -17,28 +17,28 @@ export function QuestionEditorPage() {
   const { questionId, voteId = '' } = useParams();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState<string>();
-  const controller = useQuestionEditorQuery({ voteId, questionId });
+  const questionEditor = useQuestionEditorQuery({ voteId, questionId });
   const form = useForm<QuestionFormValues>({
     defaultValues: { title: '', detail: '' },
   });
 
   useEffect(() => {
-    if (controller.question) {
+    if (questionEditor.question) {
       form.reset({
-        title: controller.question.title,
-        detail: controller.question.detail,
+        title: questionEditor.question.title,
+        detail: questionEditor.question.detail,
       });
     }
-  }, [controller.question, form]);
+  }, [questionEditor.question, form]);
 
   const saveAndFinish = form.handleSubmit(async (values) => {
-    await controller.saveQuestion(values);
+    await questionEditor.saveQuestion(values);
     navigate(`/admin/category/${voteId}`);
   });
 
   const saveAndContinue = form.handleSubmit(async (values) => {
-    await controller.saveQuestion(values);
-    controller.clearSelection();
+    await questionEditor.saveQuestion(values);
+    questionEditor.clearSelection();
     form.reset({ title: '', detail: '' });
     setSuccessMessage('항목을 저장했습니다. 다음 항목을 이어서 추가할 수 있습니다.');
   });
@@ -59,19 +59,19 @@ export function QuestionEditorPage() {
         {successMessage ? (
           <AdminMessage tone="success">{successMessage}</AdminMessage>
         ) : null}
-        {controller.uploadErrorMessage ? (
-          <AdminMessage tone="danger">{controller.uploadErrorMessage}</AdminMessage>
+        {questionEditor.uploadErrorMessage ? (
+          <AdminMessage tone="danger">{questionEditor.uploadErrorMessage}</AdminMessage>
         ) : null}
-        {controller.saveErrorMessage ? (
-          <AdminMessage tone="danger">{controller.saveErrorMessage}</AdminMessage>
+        {questionEditor.saveErrorMessage ? (
+          <AdminMessage tone="danger">{questionEditor.saveErrorMessage}</AdminMessage>
         ) : null}
 
         <form className="option-form-card" id="option-form" onSubmit={saveAndFinish}>
           <QuestionForm form={form} />
           <QuestionImagePicker
-            isUploading={controller.isUploading}
-            onSelect={(file) => void controller.selectImage(file)}
-            previewUrl={controller.previewUrl}
+            isUploading={questionEditor.isUploading}
+            onSelect={(file) => void questionEditor.selectImage(file)}
+            previewUrl={questionEditor.previewUrl}
           />
         </form>
       </main>
@@ -80,7 +80,7 @@ export function QuestionEditorPage() {
         {!questionId ? (
           <AdminButton
             form="option-form"
-            isLoading={controller.isSaving}
+            isLoading={questionEditor.isSaving}
             onClick={saveAndContinue}
             variant="secondary"
           >
@@ -90,7 +90,7 @@ export function QuestionEditorPage() {
         <AdminButton
           className="admin-button-black"
           form="option-form"
-          isLoading={controller.isSaving}
+          isLoading={questionEditor.isSaving}
           type="submit"
           variant="dark"
         >

@@ -11,13 +11,13 @@ type CreateVoteForm = {
 };
 
 export function VoteCreatePage() {
-  const controller = useVoteListQuery();
+  const voteList = useVoteListQuery();
   const navigate = useNavigate();
   const form = useForm<CreateVoteForm>({ defaultValues: { name: '' } });
   const name = form.watch('name');
 
   const submit = form.handleSubmit(async (values) => {
-    const vote = await controller.createVote(values.name);
+    const vote = await voteList.createVote(values.name);
     navigate(`/admin/category/${vote.id}`);
   });
 
@@ -34,8 +34,8 @@ export function VoteCreatePage() {
           placeholder="예: 벤쳐러스 방명록"
           {...form.register('name')}
         />
-        {controller.createErrorMessage ? (
-          <AdminMessage tone="danger">{controller.createErrorMessage}</AdminMessage>
+        {voteList.createErrorMessage ? (
+          <AdminMessage tone="danger">{voteList.createErrorMessage}</AdminMessage>
         ) : null}
       </form>
 
@@ -44,7 +44,7 @@ export function VoteCreatePage() {
           disabled={!name.trim()}
           fullWidth
           form="create-category-form"
-          isLoading={controller.isCreating}
+          isLoading={voteList.isCreating}
           type="submit"
         >
           다음 단계로

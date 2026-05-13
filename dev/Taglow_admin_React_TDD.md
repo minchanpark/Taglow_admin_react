@@ -12,10 +12,10 @@ React 구현은 현재 Flutter 프로젝트의 계층 구조를 유지하되, Re
 view/
   React components
     ↓
-api/controller/
-  Controller hooks / view models
+api/query/
+  Query hooks / view models
     ↓
-api/service/
+api/controller/
   AdminApiController contract
   MockAdminApiController
   GatewayAdminApiController
@@ -46,7 +46,7 @@ Server DTO / raw JSON
   <-> React domain model
 ```
 
-이 계층은 서버 API 변화가 React View와 Controller로 새지 않게 막는 핵심 방어선이다.
+이 계층은 서버 API 변화가 React View와 Query Hook으로 새지 않게 막는 핵심 방어선이다.
 
 ---
 
@@ -85,7 +85,7 @@ React Hook Form
   login form, signup form, vote form, question editor draft
 
 Query Hooks
-  View event orchestration, service calls, mutation composition, fallback handling
+  View event orchestration, API controller calls, mutation composition, fallback handling
 ```
 
 정책:
@@ -138,11 +138,17 @@ src/
 │       └── AdminMessage.tsx
 │
 ├── api/
-│   ├── controller/
+│   ├── query/
+│   │   ├── queryKeys.ts
 │   │   ├── useAuthQuery.ts
 │   │   ├── useVoteListQuery.ts
 │   │   ├── useVoteDetailQuery.ts
 │   │   └── useQuestionEditorQuery.ts
+│   ├── controller/
+│   │   ├── adminApiController.ts
+│   │   ├── adminApiControllerProvider.ts
+│   │   ├── gatewayAdminApiController.ts
+│   │   └── mockAdminApiController.ts
 │   ├── model/
 │   │   ├── adminUser.ts
 │   │   ├── adminAuthSession.ts
@@ -153,10 +159,8 @@ src/
 │   │   ├── questionImageUploadResult.ts
 │   │   └── qrExportResult.ts
 │   ├── service/
-│   │   ├── adminService.ts
-│   │   ├── adminServiceProvider.ts
-│   │   ├── mockAdminApiController.ts
-│   │   ├── openApiAdminApiController.ts
+│   │   ├── qrExportService.ts
+│   │   ├── externalLinkLauncher.ts
 │   │   ├── gateway/
 │   │   │   ├── adminApiGateway.ts
 │   │   │   ├── fetchAdminApiGateway.ts
@@ -168,9 +172,9 @@ src/
 │   │   │   ├── questionImageUploadService.ts
 │   │   │   ├── s3QuestionImageUploadService.ts
 │   │   │   └── presignedQuestionImageUploadService.ts
-│   │   ├── qrExportService.ts
-│   │   ├── externalLinkLauncher.ts
 │   │   └── participantShareService.ts
+│   ├── runtime/
+│   │   └── adminRuntime.tsx
 │   └── generated/
 │       ├── tagvoteSchema.ts
 │       └── tagvoteClient.ts
@@ -197,18 +201,19 @@ src/
 ### 의존성 방향
 
 ```text
-view -> controller -> service -> gateway/mapper -> generated/http
-                    -> model
+view -> query -> controller -> gateway/mapper -> generated/http
+              -> model
 utils -> model when needed
 theme -> no api dependency
 ```
 
 금지:
 - `view/**`에서 `api/generated`, `AdminApiGateway`, `AdminPayloadMapper`, endpoint string import 금지
-- `api/controller/**`에서 generated type, raw DTO, fetch client, S3 SDK import 금지
+- `api/query/**`에서 generated type, raw DTO, fetch client, S3 SDK, gateway, mapper import 금지
+- `api/controller/**`에서 React Hook, TanStack Query, Zustand, view import 금지
 - `api/model/**`에서 service, controller, view import 금지
 - `api/service/mapper/**`에서 HTTP, React, Zustand, TanStack Query import 금지
-- `api/service/gateway/**`에서 React component, Controller state import 금지
+- `api/service/gateway/**`에서 React component, query state import 금지
 
 ---
 
@@ -386,8 +391,13 @@ View
 ### 4-4. 중간 계층 파일 배치
 
 ```text
+src/api/controller/
+├── adminApiController.ts
+├── adminApiControllerProvider.ts
+├── gatewayAdminApiController.ts
+└── mockAdminApiController.ts
+
 src/api/service/
-├── openApiAdminApiController.ts
 ├── gateway/
 │   ├── adminApiGateway.ts
 │   ├── fetchAdminApiGateway.ts
@@ -510,7 +520,7 @@ export const adminPayloadMapper = {
 - domain model은 항상 `number` double 값이다.
 - 서버가 integer만 받는 동안 mapper는 `imageRatio * 10000`을 반올림해 보낼 수 있다.
 - 서버가 double로 바뀌면 mapper의 encode 정책만 바꾼다.
-- View/Controller/Service contract는 바꾸지 않는다.
+- View/Query Hook/AdminApiController contract는 바꾸지 않는다.
 
 ```ts
 function encodeImageRatio(value: number): number {
@@ -583,8 +593,8 @@ export class GatewayAdminApiController implements AdminApiController {
 ```
 
 정책:
-- `currentUser`는 vote 생성 시 `createdByUserId`를 보강하기 위해 service 내부에만 둘 수 있다.
-- Service는 raw payload를 Controller에 전달하지 않는다.
+- `currentUser`는 vote 생성 시 `createdByUserId`를 보강하기 위해 API Controller 내부에만 둘 수 있다.
+- API Controller는 raw payload를 Query Hook에 전달하지 않는다.
 - public preview payload는 운영 진단용으로 `Record<string, unknown>` 형태까지 허용하되 generated DTO를 노출하지 않는다.
 
 ### 5-3. MockAdminApiController
@@ -613,7 +623,7 @@ export function createAdminApiController(env: EnvConfig): AdminApiController {
 }
 ```
 
-React Context로 service 인스턴스를 제공하고, Query Hook은 `useAdminApiController()`로 계약만 읽는다.
+React Context로 API Controller 인스턴스를 제공하고, Query Hook은 `useAdminApiController()`로 계약만 읽는다.
 
 ---
 
@@ -710,7 +720,7 @@ type VoteDetailController = {
 - upload failure and API failure separation
 
 정책:
-- 이미지 bytes는 upload service에 전달된 뒤 Controller state에 장기 보관하지 않는다.
+- 이미지 bytes는 upload service에 전달된 뒤 Query Hook state에 장기 보관하지 않는다.
 - 저장 payload에는 `publicUrl`, `imageRatio`만 넣는다.
 
 ---
@@ -838,7 +848,7 @@ export interface QuestionImageUploadService {
 정책:
 - 장기 AWS key를 frontend에 넣지 않는다.
 - 업로드 결과 public URL이 참여자/player에서 접근 가능해야 한다.
-- S3 실패와 API 저장 실패를 Controller에서 분리해 표시한다.
+- S3 실패와 API 저장 실패를 Query Hook에서 분리해 표시한다.
 
 ---
 
@@ -918,7 +928,7 @@ const paths = {
 ```
 
 정책:
-- View/Controller는 `src/api/generated`를 import하지 않는다.
+- View/Query Hook은 `src/api/generated`를 import하지 않는다.
 - generated type 이름이 UI copy에 노출되지 않는다.
 - OpenAPI가 틀린 경우 runtime mapper test로 실제 payload 차이를 흡수한다.
 
@@ -1090,10 +1100,10 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - mapper/gateway unit test 작성
 - `AdminApiController` contract 작성
 
-### Phase 3. Mock service and query hooks
+### Phase 3. Mock API controller and query hooks
 
 - `MockAdminApiController` 작성
-- service provider/context 작성
+- API controller provider/runtime context 작성
 - auth/vote/question Query Hook 작성
 - TanStack Query key 정책 작성
 - Zustand UI/session store 작성
@@ -1127,7 +1137,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 
 ### Phase 7. Verification and deploy
 
-- unit/controller/component/e2e test
+- unit/API controller/query/component/e2e test
 - Firebase build/deploy
 - Spring CORS allowlist
 - S3 CORS
@@ -1157,7 +1167,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 1. React 프로젝트가 Firebase Hosting에서 배포된다.
 2. `src/api/model`은 안정적인 domain model만 정의한다.
 3. `src/api/service/gateway`와 `src/api/service/mapper`가 서버 DTO와 domain model 사이 중간 계층을 구성한다.
-4. View/Controller는 endpoint, generated DTO, raw payload를 직접 알지 않는다.
+4. View/Query Hook은 endpoint, generated DTO, raw payload를 직접 알지 않는다.
 5. `AdminApiController` 구현체는 mock과 real을 같은 contract로 교체할 수 있다.
 6. auth, vote, question, upload, link, QR, player, diagnostics flow가 동작한다.
 7. mapper/gateway test가 서버 DTO 변화의 주요 alias와 타입 차이를 보호한다.

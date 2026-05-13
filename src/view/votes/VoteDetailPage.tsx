@@ -10,13 +10,13 @@ import { VoteStatusControl } from './components/VoteStatusControl';
 export function VoteDetailPage() {
   const { voteId = '' } = useParams();
   const navigate = useNavigate();
-  const controller = useVoteDetailQuery(voteId);
+  const voteDetail = useVoteDetailQuery(voteId);
 
-  if (controller.isLoading) {
+  if (voteDetail.isLoading) {
     return <div className="list-skeleton full-screen">세부 항목을 불러오는 중입니다.</div>;
   }
 
-  if (!controller.vote) {
+  if (!voteDetail.vote) {
     return (
       <section className="admin-screen surface-screen">
         <AdminHeader backTo="/admin" title="세부 항목" />
@@ -28,7 +28,7 @@ export function VoteDetailPage() {
   }
 
   const deleteVote = async () => {
-    await controller.deleteVote();
+    await voteDetail.deleteVote();
     navigate('/admin', { replace: true });
   };
 
@@ -45,34 +45,34 @@ export function VoteDetailPage() {
             <Share2 />
           </Link>
         }
-        title={controller.vote.name}
+        title={voteDetail.vote.name}
       />
 
       <main className="admin-body">
         <div className="detail-intro">
           <h1>세부 항목 관리</h1>
-          <p>{controller.questions.length}개의 항목이 준비되어 있습니다.</p>
+          <p>{voteDetail.questions.length}개의 항목이 준비되어 있습니다.</p>
         </div>
 
-        {controller.actionMessage ? (
-          <AdminMessage tone="success">{controller.actionMessage}</AdminMessage>
+        {voteDetail.actionMessage ? (
+          <AdminMessage tone="success">{voteDetail.actionMessage}</AdminMessage>
         ) : null}
-        {controller.actionErrorMessage ? (
-          <AdminMessage tone="warning">{controller.actionErrorMessage}</AdminMessage>
+        {voteDetail.actionErrorMessage ? (
+          <AdminMessage tone="warning">{voteDetail.actionErrorMessage}</AdminMessage>
         ) : null}
-        {controller.errorMessage ? (
-          <AdminMessage tone="danger">{controller.errorMessage}</AdminMessage>
+        {voteDetail.errorMessage ? (
+          <AdminMessage tone="danger">{voteDetail.errorMessage}</AdminMessage>
         ) : null}
 
-        <QuestionGrid questions={controller.questions} voteId={voteId} />
+        <QuestionGrid questions={voteDetail.questions} voteId={voteId} />
 
         <section className="settings-group">
           <p className="settings-caption">운영 상태</p>
           <div className="settings-box padded">
             <VoteStatusControl
-              isSaving={controller.isSaving}
-              onChange={(status) => void controller.updateVoteStatus(status)}
-              status={controller.vote.status}
+              isSaving={voteDetail.isSaving}
+              onChange={(status) => void voteDetail.updateVoteStatus(status)}
+              status={voteDetail.vote.status}
             />
           </div>
         </section>

@@ -9,18 +9,18 @@ import { AdminMessage } from '../../components/AdminMessage';
 
 export function VoteSharePage() {
   const { questionId = 'all', voteId = '' } = useParams();
-  const controller = useVoteDetailQuery(voteId);
+  const voteDetail = useVoteDetailQuery(voteId);
 
   const copyLink = async () => {
-    await controller.copyParticipantUrl();
+    await voteDetail.copyParticipantUrl();
     toast.success('링크를 복사했습니다.');
   };
 
   const shareExternally = async () => {
     if (navigator.share) {
       await navigator.share({
-        title: controller.vote?.name ?? 'Taglow 투표',
-        url: controller.links.participantUrl,
+        title: voteDetail.vote?.name ?? 'Taglow 투표',
+        url: voteDetail.links.participantUrl,
       });
       return;
     }
@@ -28,7 +28,7 @@ export function VoteSharePage() {
   };
 
   const downloadQr = async () => {
-    await controller.downloadParticipantQr();
+    await voteDetail.downloadParticipantQr();
     toast.success('QR 다운로드를 준비했습니다.');
   };
 
@@ -59,18 +59,18 @@ export function VoteSharePage() {
           <p>참여자들이 쉽게 접근할 수 있습니다.</p>
         </div>
 
-        {controller.actionErrorMessage ? (
-          <AdminMessage tone="danger">{controller.actionErrorMessage}</AdminMessage>
+        {voteDetail.actionErrorMessage ? (
+          <AdminMessage tone="danger">{voteDetail.actionErrorMessage}</AdminMessage>
         ) : null}
 
         <div className="share-qr-card" aria-label="참여자 QR 코드">
           <div>
-            {controller.links.participantQrPayload ? (
+            {voteDetail.links.participantQrPayload ? (
               <QRCodeSVG
                 bgColor="transparent"
                 fgColor="#111111"
                 size={168}
-                value={controller.links.participantQrPayload}
+                value={voteDetail.links.participantQrPayload}
               />
             ) : (
               <strong>QR CODE</strong>

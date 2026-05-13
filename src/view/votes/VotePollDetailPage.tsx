@@ -26,16 +26,16 @@ const stickerCopy: Record<StickerKind, { label: string; quote: string }> = {
 export function VotePollDetailPage() {
   const { questionId = '', voteId = '' } = useParams();
   const navigate = useNavigate();
-  const controller = useVoteDetailQuery(voteId);
+  const voteDetail = useVoteDetailQuery(voteId);
   const [selected, setSelected] = useState<StickerKind>();
 
-  if (controller.isLoading) {
+  if (voteDetail.isLoading) {
     return <div className="list-skeleton full-screen dark">상세 화면을 불러오는 중입니다.</div>;
   }
 
-  const question = controller.questions.find((item) => item.id === questionId);
+  const question = voteDetail.questions.find((item) => item.id === questionId);
 
-  if (!controller.vote || !question) {
+  if (!voteDetail.vote || !question) {
     return (
       <section className="sticker-detail-screen">
         <AdminMessage tone="danger">항목을 찾을 수 없습니다.</AdminMessage>

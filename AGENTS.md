@@ -70,7 +70,7 @@ Repo-local Codex skills live under `.codex/skills`:
 - `taglow-upload-share`: question 이미지 업로드, QR, participant/player 링크
 - `taglow-debug`: 계층별 디버깅
 - `taglow-security-hardening`: 인증, CORS/CSRF, secret, S3, URL 보안 점검
-- `taglow-test-suite`: unit/controller/component/e2e 테스트
+- `taglow-test-suite`: unit/API controller/query/component/e2e 테스트
 - `taglow-performance`: 렌더링, 번들, query, 이미지/QR 성능
 - `taglow-deploy-diagnostics`: Vite env, Firebase Hosting, public API 진단
 - `taglow-review-quality`: 코드 리뷰와 릴리즈 준비 점검
