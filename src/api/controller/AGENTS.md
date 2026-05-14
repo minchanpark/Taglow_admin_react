@@ -4,10 +4,10 @@
 
 ## 책임
 
-- `AdminApiController` contract, `GatewayAdminApiController`, `MockAdminApiController`, provider를 관리합니다.
+- `AdminApiController` contract, `GatewayAdminApiController`, provider를 관리합니다.
 - Gateway 호출 전 domain command를 Mapper로 server payload로 변환합니다.
 - Gateway raw response를 Mapper로 domain model로 변환합니다.
-- mock과 real 구현체가 같은 contract로 교체 가능하게 유지합니다.
+- production runtime은 실 서버 Gateway 구현체만 사용합니다.
 
 ## 금지
 

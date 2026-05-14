@@ -6,7 +6,7 @@
 
 ```text
 query/       React Query hooks and view models
-controller/  AdminApiController contract and gateway/mock implementations
+controller/  AdminApiController contract and gateway implementation
 model/       Stable React domain model
 runtime/     Runtime dependency composition and provider
 service/     Side-effect services, gateway, mapper, upload/link helpers

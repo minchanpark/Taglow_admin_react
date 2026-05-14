@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taglow Sync Server API"
+  short_description: "Sync frontend API code to server changes"
+  default_prompt: "Use $taglow-sync-server-api to inspect vote.newdawnsoi.site API changes and update Taglow frontend boundaries."

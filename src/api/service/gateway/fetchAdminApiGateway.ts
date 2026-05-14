@@ -20,6 +20,7 @@ type RequestOptions = {
 
 const paths = {
   signup: '/api/users',
+  user: (userId: string) => `/api/users/${encodeURIComponent(userId)}`,
   login: '/api/auth/login',
   me: '/api/auth/me',
   logout: '/api/auth/logout',
@@ -117,6 +118,10 @@ export class FetchAdminApiGateway implements AdminApiGateway {
 
   async logout() {
     await this.request(paths.logout, { method: 'POST' });
+  }
+
+  async deleteUser(userId: string) {
+    await this.request(paths.user(userId), { method: 'DELETE' });
   }
 
   fetchVotes() {

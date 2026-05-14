@@ -1,0 +1,25 @@
+.screen-loader {
+  min-height: 100dvh;
+  display: grid;
+  gap: 8px;
+  place-content: center;
+  padding: 32px;
+  background: #ffffff;
+  color: #000000;
+  text-align: center;
+}
+
+.screen-loader strong {
+  font-size: 18px;
+}
+
+.screen-loader span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.screen-loader small {
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+}

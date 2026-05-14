@@ -2,7 +2,6 @@ export type EnvConfig = Readonly<{
   apiBaseUrl: string;
   participantBaseUrl: string;
   playerBaseUrl: string;
-  useMockService: boolean;
   voteCreatePath: string;
   awsRegion: string;
   cognitoIdentityPoolId: string;
@@ -37,7 +36,6 @@ export const createEnvConfig = (): EnvConfig => ({
     'https://taglow-participant.web.app',
   playerBaseUrl:
     readEnv('VITE_TAGLOW_PLAYER_BASE_URL') ?? 'https://taglow-player.web.app',
-  useMockService: readBoolean('VITE_TAGLOW_USE_MOCK_SERVICE', false),
   voteCreatePath:
     readEnv('VITE_TAGLOW_VOTE_CREATE_PATH') ?? '/api/public/votes',
   awsRegion: readEnv('VITE_TAGLOW_AWS_REGION') ?? 'ap-northeast-2',

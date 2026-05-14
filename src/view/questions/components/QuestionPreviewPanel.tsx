@@ -1,5 +1,6 @@
 import { ImageIcon } from 'lucide-react';
 import type { QuestionImageUploadResult } from '../../../api/model';
+import './css/QuestionPreviewPanel.css';
 
 type QuestionPreviewPanelProps = {
   imageUrl?: string;

@@ -267,6 +267,7 @@ export type AdminVote = {
   status: VoteStatus;
   createdByUserId: string;
   isMine: boolean;
+  questionCount?: number;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -282,6 +283,7 @@ export type AdminQuestion = {
   detail: string;
   imageUrl: string;
   imageRatio: number;
+  tagCount?: number;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -330,6 +332,8 @@ export type AdminVoteLinks = {
 - `id`가 `voteId`로 내려옴
 - `name`이 public display에서 `voteName`으로 내려옴
 - `detail`이 `description`으로 바뀜
+- vote 목록에 `questionCount`/`questionsCount`/`question_count`가 내려옴
+- question 목록에 `tagCount`/`tagsCount` 또는 `tags` 배열이 내려옴
 - `imageRatio`가 현재 integer schema에서 future double schema로 바뀜
 - vote 생성 endpoint가 `/api/public/votes`에서 `/api/votes`로 바뀜
 - cookie 인증에서 token 인증으로 바뀜
@@ -362,6 +366,7 @@ Mapper는 다음만 담당한다.
 - ID string normalization
 - date string normalization
 - field alias 흡수
+- `questionCount`, `tagCount` count alias와 nested list fallback 흡수
 - `imageRatio` 임시 스케일 인코딩/디코딩
 
 Mapper는 다음을 하면 안 된다.
@@ -385,8 +390,8 @@ Query Hook
 ```
 
 정책:
-- `MockAdminApiController`와 `GatewayAdminApiController`는 같은 `AdminApiController` 계약을 구현한다.
-- Controller와 View는 구현체가 mock인지 real인지 알지 않는다.
+- production runtime은 `GatewayAdminApiController`를 통해 실 서버 API만 호출한다.
+- Controller와 View는 endpoint, raw payload, generated DTO를 직접 알지 않는다.
 - public preview payload는 Controller에 도달하기 전 Service/Gateway에서 안전한 shape으로 정규화한다.
 
 ---
@@ -423,7 +428,6 @@ React/Vite 기준:
 VITE_TAGLOW_API_BASE_URL=https://vote.newdawnsoi.site
 VITE_TAGLOW_PARTICIPANT_BASE_URL=https://taglow-participant.web.app
 VITE_TAGLOW_PLAYER_BASE_URL=https://taglow-player.web.app
-VITE_TAGLOW_USE_MOCK_SERVICE=false
 VITE_TAGLOW_VOTE_CREATE_PATH=/api/public/votes
 
 VITE_TAGLOW_AWS_REGION=ap-northeast-2
@@ -506,7 +510,9 @@ VITE_TAGLOW_S3_QUESTION_IMAGE_PREFIX=public/question-images
 2. 서버가 `VoteDisplayResponse.voteName`을 반환해도 `AdminVote.name` 또는 preview display name으로 매핑된다.
 3. 서버가 `QuestionWithTagsResponse.question` 중첩 구조를 반환해도 `AdminQuestion`으로 매핑된다.
 4. 서버가 `imageRatio`를 integer scaled value로 반환해도 domain model은 실제 double 값을 갖는다.
-5. protected vote create endpoint로 바뀌어도 View/Query Hook은 수정되지 않는다.
+5. 서버가 `VoteResponseWithCount.questionCount` 또는 count alias를 반환하면 `AdminVote.questionCount`로 매핑된다.
+6. 서버가 `QuestionWithTagsResponse.tagCount` 또는 `tags` 배열을 반환하면 `AdminQuestion.tagCount`로 매핑된다.
+7. protected vote create endpoint로 바뀌어도 View/Query Hook은 수정되지 않는다.
 
 ### 10-3. 실패 시나리오
 
@@ -530,7 +536,7 @@ VITE_TAGLOW_S3_QUESTION_IMAGE_PREFIX=public/question-images
 6. question 이미지는 업로드 후 `imageUrl`, `imageRatio`만 저장한다.
 7. participant URL, QR payload, player URL 정책이 Flutter와 동일하다.
 8. public display/questions API로 저장 결과를 확인할 수 있다.
-9. mock service와 real service가 같은 contract로 교체 가능하다.
+9. production runtime은 실 서버 Gateway만 사용한다.
 10. mapper/gateway/API controller/query/component/e2e 테스트가 핵심 흐름을 보호한다.
 
 ---

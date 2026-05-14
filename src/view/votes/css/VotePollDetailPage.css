@@ -1,0 +1,228 @@
+.sticker-detail-screen {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #000000;
+  color: #ffffff;
+}
+
+.sticker-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sticker-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.tag-dot-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.tag-location-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow:
+    0 0 0 2px rgba(239, 68, 68, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+}
+
+.sticker-overlay-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 48px 20px 16px;
+}
+
+.sticker-overlay-header strong {
+  max-width: 180px;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.sticker-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  font-weight: 600;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.sticker-back-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sticker-share-pill {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.sticker-share-pill:hover {
+  background: var(--key);
+}
+
+.tag-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 36px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.tag-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  padding: 24px;
+  border-radius: 32px;
+  background: #ffffff;
+  color: #000000;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.tag-modal-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 999px;
+  background: var(--key);
+  box-shadow:
+    0 10px 15px rgba(254, 211, 24, 0.3),
+    0 4px 6px rgba(254, 211, 24, 0.3);
+}
+
+.tag-modal-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.3;
+}
+
+.tag-modal-media {
+  position: relative;
+  max-height: 200px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  border-radius: 16px;
+}
+
+.tag-modal-media img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.video-play-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  transform: translate(-50%, -50%);
+}
+
+.video-play-badge svg {
+  width: 20px;
+  height: 20px;
+  margin-left: 2px;
+}
+
+.tag-modal-card p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.modal-close-button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.modal-close-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.list-skeleton {
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  min-height: 140px;
+  padding: 24px;
+  border: 1px solid #f3f4f6;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #9ca3af;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.list-skeleton.full-screen {
+  min-height: 100dvh;
+  border: 0;
+  border-radius: 0;
+}
+
+.list-skeleton.dark {
+  background: #000000;
+  color: rgba(255, 255, 255, 0.8);
+}

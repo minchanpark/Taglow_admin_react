@@ -1,0 +1,34 @@
+.admin-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.admin-message-info,
+.message-info {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.admin-message-success,
+.message-success {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.admin-message-warning,
+.message-warning {
+  background: #fffbeb;
+  color: #a15c07;
+}
+
+.admin-message-danger,
+.message-danger {
+  background: #fef2f2;
+  color: var(--danger);
+}

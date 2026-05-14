@@ -6,7 +6,7 @@ import { queryKeys } from './queryKeys';
 import { debugAuthFlow, validateName, validatePassword } from '../../utils';
 
 export function useAuthQuery() {
-  const { adminApiController, env } = useAdminRuntime();
+  const { adminApiController } = useAdminRuntime();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [successMessage, setSuccessMessage] = useState<string>();
@@ -61,6 +61,14 @@ export function useAuthQuery() {
 
   const logoutMutation = useMutation({
     mutationFn: () => adminApiController.logout(),
+    onSuccess: () => {
+      queryClient.clear();
+      queryClient.setQueryData(queryKeys.currentUser, null);
+    },
+  });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: () => adminApiController.deleteCurrentUser(),
     onSuccess: () => {
       queryClient.clear();
       queryClient.setQueryData(queryKeys.currentUser, null);
@@ -160,17 +168,18 @@ export function useAuthQuery() {
   return {
     user,
     canManage,
-    isMockService: env.useMockService,
     isCheckingSession: sessionQuery.isLoading && !sessionQuery.isError,
     isSubmitting:
       loginMutation.isPending ||
       signupMutation.isPending ||
-      logoutMutation.isPending,
+      logoutMutation.isPending ||
+      deleteAccountMutation.isPending,
     errorMessage,
     successMessage,
     login,
     signup,
     logout: () => logoutMutation.mutateAsync(),
+    deleteAccount: () => deleteAccountMutation.mutateAsync(),
     clearMessages,
   };
 }

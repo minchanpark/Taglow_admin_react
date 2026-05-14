@@ -1,4 +1,5 @@
 import { ImagePlus } from 'lucide-react';
+import './css/QuestionImagePicker.css';
 
 type QuestionImagePickerProps = {
   isUploading: boolean;

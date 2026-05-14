@@ -48,6 +48,7 @@ export function useQuestionEditorQuery(input: {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.questions(input.voteId) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.vote(input.voteId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.votes }),
       ]);
     },
   });

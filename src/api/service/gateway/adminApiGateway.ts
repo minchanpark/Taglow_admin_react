@@ -3,6 +3,7 @@ export interface AdminApiGateway {
   login(payload: Record<string, unknown>): Promise<Record<string, unknown>>;
   me(): Promise<Record<string, unknown> | null>;
   logout(): Promise<void>;
+  deleteUser(userId: string): Promise<void>;
 
   fetchVotes(): Promise<Array<Record<string, unknown>>>;
   createVote(payload: Record<string, unknown>): Promise<Record<string, unknown>>;

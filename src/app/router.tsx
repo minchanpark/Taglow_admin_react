@@ -12,20 +12,19 @@ import { VoteListPage } from '../view/votes/VoteListPage';
 import { VotePollDetailPage } from '../view/votes/VotePollDetailPage';
 import { VoteSharePage } from '../view/votes/VoteSharePage';
 import { useAuthQuery } from '../api/query/useAuthQuery';
-
-const SessionLoader = () => (
-  <div className="screen-loader">
-    <span>세션을 확인하는 중입니다.</span>
-    <small>오래 걸리면 새로고침하거나 잠시 후 다시 시도해주세요.</small>
-  </div>
-);
+import { ScreenLoader } from '../view/system/ScreenLoader';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const auth = useAuthQuery();
   const location = useLocation();
 
   if (auth.isCheckingSession) {
-    return <SessionLoader />;
+    return (
+      <ScreenLoader
+        description="오래 걸리면 새로고침하거나 잠시 후 다시 시도해주세요."
+        message="세션을 확인하는 중입니다."
+      />
+    );
   }
 
   if (!auth.user) {
@@ -34,10 +33,10 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (!auth.canManage) {
     return (
-      <div className="screen-loader">
-        <strong>운영 콘솔 접근 권한이 없습니다.</strong>
-        <span>USER 또는 ADMIN role이 필요합니다.</span>
-      </div>
+      <ScreenLoader
+        title="운영 콘솔 접근 권한이 없습니다."
+        message="USER 또는 ADMIN role이 필요합니다."
+      />
     );
   }
 

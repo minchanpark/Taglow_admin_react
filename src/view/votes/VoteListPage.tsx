@@ -2,6 +2,7 @@ import { Plus, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useVoteListQuery } from '../../api/query/useVoteListQuery';
 import { AdminMessage } from '../../components/AdminMessage';
+import './css/VoteListPage.css';
 
 const formatDate = (value?: string) => {
   if (!value) return '생성일 -';

@@ -1,5 +1,9 @@
 export type { AdminAuthSession } from './adminAuthSession';
-export type { AdminQuestion } from './adminQuestion';
+export type {
+  AdminQuestion,
+  AdminQuestionTag,
+  AdminQuestionTagType,
+} from './adminQuestion';
 export type { AdminUser } from './adminUser';
 export { canUseAdminConsole, isAdmin } from './adminUser';
 export type { AdminVote, VoteStatus } from './adminVote';

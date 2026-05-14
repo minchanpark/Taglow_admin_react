@@ -1,5 +1,6 @@
 import type { VoteStatus } from '../../../api/model';
 import { AdminButton } from '../../../components/AdminButton';
+import './css/VoteStatusControl.css';
 
 type VoteStatusControlProps = {
   status: VoteStatus;

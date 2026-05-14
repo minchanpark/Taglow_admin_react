@@ -1,0 +1,104 @@
+.admin-screen {
+  min-height: 100dvh;
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+  color: #000000;
+}
+
+.share-screen {
+  background: #ffffff;
+}
+
+.share-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 32px;
+  overflow-y: auto;
+  padding: 32px 32px 150px;
+  text-align: center;
+}
+
+.share-intro {
+  text-align: center;
+}
+
+.share-intro h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.share-intro p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.share-qr-card {
+  width: 70%;
+  max-width: 240px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 32px;
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition:
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    transform 300ms ease;
+}
+
+.share-qr-card:hover {
+  border-color: rgba(254, 211, 24, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(254, 211, 24, 0.15);
+}
+
+.share-qr-card > div {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #f3f4f6;
+  border-radius: 20px;
+  background: #f9fafb;
+}
+
+.share-qr-card strong {
+  color: #d1d5db;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.bottom-cta {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid #f3f4f6;
+  background: #ffffff;
+  box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.03);
+}
+
+.share-actions {
+  gap: 12px;
+}

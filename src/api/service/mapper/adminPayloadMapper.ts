@@ -1,4 +1,11 @@
-import type { AdminQuestion, AdminUser, AdminVote, VoteStatus } from '../../model';
+import type {
+  AdminQuestion,
+  AdminQuestionTag,
+  AdminQuestionTagType,
+  AdminUser,
+  AdminVote,
+  VoteStatus,
+} from '../../model';
 
 const IMAGE_RATIO_SCALE = 10000;
 
@@ -72,6 +79,12 @@ const normalizeStatus = (value: unknown): VoteStatus => {
   return 'PROGRESS';
 };
 
+const normalizeTagType = (value: unknown): AdminQuestionTagType => {
+  const type = toStringValue(value).trim().toUpperCase();
+  if (type === 'TEXT' || type === 'PHOTO' || type === 'VIDEO') return type;
+  return 'UNKNOWN';
+};
+
 const normalizeBoolean = (value: unknown) =>
   typeof value === 'boolean' ? value : undefined;
 
@@ -82,6 +95,46 @@ const toNumber = (value: unknown) => {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
   return undefined;
+};
+
+const findFirstValue = (
+  value: unknown,
+  keys: string[],
+  depth = 0,
+): unknown => {
+  if (!isRecord(value) || depth > 4) return undefined;
+
+  for (const key of keys) {
+    const candidate = value[key];
+    if (candidate !== undefined && candidate !== null) return candidate;
+  }
+
+  for (const key of ['data', 'item', 'vote', 'question', 'post']) {
+    const nested = value[key];
+    if (!isRecord(nested)) continue;
+    const candidate = findFirstValue(nested, keys, depth + 1);
+    if (candidate !== undefined) return candidate;
+  }
+
+  return undefined;
+};
+
+const normalizeCount = (value: unknown) => {
+  const count = toNumber(value);
+  if (count == null) return undefined;
+  return Math.max(0, Math.trunc(count));
+};
+
+const countFromPayload = (
+  payload: Record<string, unknown>,
+  countKeys: string[],
+  listKeys: string[],
+) => {
+  const explicitCount = normalizeCount(findFirstValue(payload, countKeys));
+  if (explicitCount !== undefined) return explicitCount;
+
+  const list = findFirstValue(payload, listKeys);
+  return Array.isArray(list) ? list.length : undefined;
 };
 
 const decodeImageRatio = (
@@ -130,6 +183,94 @@ const imageUrlFromQuestion = (rawQuestion: Record<string, unknown>) =>
       rawQuestion.posterImageUrl ??
       rawQuestion.mediaUrl,
   );
+
+const tagLocationValue = (rawTag: Record<string, unknown>, axis: 'x' | 'y') => {
+  const position = isRecord(rawTag.position) ? rawTag.position : undefined;
+  const location = isRecord(rawTag.location) ? rawTag.location : undefined;
+  const keys =
+    axis === 'x'
+      ? [
+          rawTag.locationX,
+          rawTag.location_x,
+          rawTag.positionX,
+          rawTag.position_x,
+          rawTag.x,
+          rawTag.left,
+          rawTag.xRatio,
+          rawTag.ratioX,
+          position?.x,
+          position?.left,
+          position?.locationX,
+          location?.x,
+          location?.left,
+          location?.locationX,
+        ]
+      : [
+          rawTag.locationY,
+          rawTag.location_y,
+          rawTag.positionY,
+          rawTag.position_y,
+          rawTag.y,
+          rawTag.top,
+          rawTag.yRatio,
+          rawTag.ratioY,
+          position?.y,
+          position?.top,
+          position?.locationY,
+          location?.y,
+          location?.top,
+          location?.locationY,
+        ];
+
+  for (const key of keys) {
+    const value = toNumber(key);
+    if (value !== undefined) return value;
+  }
+
+  return undefined;
+};
+
+const tagFromPayload = (
+  rawTag: Record<string, unknown>,
+  fallback: { questionId: string; index: number },
+): AdminQuestionTag | undefined => {
+  const locationX = tagLocationValue(rawTag, 'x');
+  const locationY = tagLocationValue(rawTag, 'y');
+  if (locationX === undefined || locationY === undefined) return undefined;
+
+  const questionId = toStringId(
+    rawTag.questionId ?? rawTag.question_id,
+    fallback.questionId,
+  );
+
+  return {
+    id: toStringId(
+      rawTag.id ?? rawTag.tagId ?? rawTag.tag_id,
+      `${questionId}:tag-${fallback.index}`,
+    ),
+    questionId,
+    type: normalizeTagType(rawTag.type ?? rawTag.tagType ?? rawTag.tag_type),
+    locationX,
+    locationY,
+    data: optionalString(rawTag.data ?? rawTag.value ?? rawTag.text),
+    duration: normalizeCount(rawTag.duration),
+    createdAt: optionalString(rawTag.createdAt ?? rawTag.created_at),
+    updatedAt: optionalString(rawTag.updatedAt ?? rawTag.updated_at),
+  };
+};
+
+const tagsFromPayload = (
+  payload: Record<string, unknown>,
+  questionId: string,
+): AdminQuestionTag[] => {
+  const rawTags = findFirstValue(payload, ['tags', 'tagList', 'tag_list']);
+  if (!Array.isArray(rawTags)) return [];
+
+  return rawTags
+    .filter(isRecord)
+    .map((tag, index) => tagFromPayload(tag, { questionId, index }))
+    .filter((tag): tag is AdminQuestionTag => Boolean(tag));
+};
 
 export class AdminPayloadMapper {
   loginToPayload(input: { name: string; password: string }) {
@@ -201,6 +342,11 @@ export class AdminPayloadMapper {
       isMine:
         explicitMine ??
         Boolean(fallback.currentUser?.id && createdByUserId === fallback.currentUser.id),
+      questionCount: countFromPayload(
+        payload,
+        ['questionCount', 'questionsCount', 'question_count', 'questions_count'],
+        ['questions', 'questionList', 'question_list'],
+      ),
       createdAt: optionalString(rawVote.createdAt ?? rawVote.created_at),
       updatedAt: optionalString(rawVote.updatedAt ?? rawVote.updated_at),
     };
@@ -250,6 +396,7 @@ export class AdminPayloadMapper {
       rawQuestion.voteId ?? rawQuestion.eventId,
       fallback.voteId ?? '',
     );
+    const tags = tagsFromPayload(payload, id);
 
     return {
       id,
@@ -260,6 +407,12 @@ export class AdminPayloadMapper {
       ),
       imageUrl: imageUrlFromQuestion(rawQuestion),
       imageRatio: decodeImageRatio(rawQuestion.imageRatio, rawQuestion),
+      tagCount: countFromPayload(
+        payload,
+        ['tagCount', 'tagsCount', 'tag_count', 'tags_count'],
+        ['tags', 'tagList', 'tag_list'],
+      ),
+      tags,
       createdAt: optionalString(rawQuestion.createdAt ?? rawQuestion.created_at),
       updatedAt: optionalString(rawQuestion.updatedAt ?? rawQuestion.updated_at),
     };

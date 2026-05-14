@@ -5,4 +5,4 @@ export { SvgQrExportService } from './qrExportService';
 export type { QuestionImagePickerService } from './upload/questionImagePickerService';
 export { BrowserQuestionImagePickerService } from './upload/questionImagePickerService';
 export type { QuestionImageUploadService } from './upload/questionImageUploadService';
-export { MockQuestionImageUploadService } from './upload/mockQuestionImageUploadService';
+export { S3QuestionImageUploadService } from './upload/s3QuestionImageUploadService';

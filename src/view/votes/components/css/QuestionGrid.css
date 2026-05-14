@@ -1,0 +1,108 @@
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.option-card,
+.option-add-card {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  text-align: center;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.option-card:active,
+.option-add-card:active {
+  transform: scale(0.98);
+}
+
+.option-card:hover {
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.option-thumb {
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.option-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.option-card h2 {
+  max-width: 100%;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.option-card:hover h2 {
+  color: var(--key-hover);
+}
+
+.option-card > span {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f9fafb;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.option-add-card {
+  border: 2px dashed #d1d5db;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.option-add-card span {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.option-add-card:hover {
+  border-color: var(--key);
+  color: #000000;
+}
+
+.option-add-card:hover span {
+  background: var(--key);
+  box-shadow: 0 4px 14px rgba(254, 211, 24, 0.25);
+}
+
+.option-add-card svg {
+  width: 24px;
+  height: 24px;
+}

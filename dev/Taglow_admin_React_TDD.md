@@ -17,7 +17,6 @@ api/query/
     ↓
 api/controller/
   AdminApiController contract
-  MockAdminApiController
   GatewayAdminApiController
     ↓
 api/service/gateway + mapper
@@ -147,8 +146,7 @@ src/
 │   ├── controller/
 │   │   ├── adminApiController.ts
 │   │   ├── adminApiControllerProvider.ts
-│   │   ├── gatewayAdminApiController.ts
-│   │   └── mockAdminApiController.ts
+│   │   └── gatewayAdminApiController.ts
 │   ├── model/
 │   │   ├── adminUser.ts
 │   │   ├── adminAuthSession.ts
@@ -194,7 +192,7 @@ src/
 │   └── adminTheme.css
 │
 └── test/
-    ├── mocks/
+    ├── renderWithProviders.tsx
     └── setup.ts
 ```
 
@@ -256,6 +254,7 @@ export type AdminVote = Readonly<{
   status: VoteStatus;
   createdByUserId: string;
   isMine: boolean;
+  questionCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }>;
@@ -271,6 +270,7 @@ export type AdminQuestion = Readonly<{
   detail: string;
   imageUrl: string;
   imageRatio: number;
+  tagCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }>;
@@ -377,6 +377,7 @@ View
 - `id`, `userId`, `voteId`, `questionId` alias 흡수
 - `name`, `voteName` alias 흡수
 - `detail`, `description` alias 흡수
+- `questionCount`, `tagCount` alias와 nested list fallback 흡수
 - server enum 문자열 -> domain enum
 - `imageRatio` integer/double 호환 처리
 - null 제거와 partial update payload 생성
@@ -394,8 +395,7 @@ View
 src/api/controller/
 ├── adminApiController.ts
 ├── adminApiControllerProvider.ts
-├── gatewayAdminApiController.ts
-└── mockAdminApiController.ts
+└── gatewayAdminApiController.ts
 
 src/api/service/
 ├── gateway/
@@ -416,6 +416,7 @@ export interface AdminApiGateway {
   login(payload: Record<string, unknown>): Promise<Record<string, unknown>>;
   me(): Promise<Record<string, unknown> | null>;
   logout(): Promise<void>;
+  deleteUser(userId: string): Promise<void>;
 
   fetchVotes(): Promise<Array<Record<string, unknown>>>;
   createVote(payload: Record<string, unknown>): Promise<Record<string, unknown>>;
@@ -546,6 +547,7 @@ export interface AdminApiController {
   login(input: { name: string; password: string }): Promise<AdminUser>;
   fetchCurrentUser(): Promise<AdminUser | null>;
   logout(): Promise<void>;
+  deleteCurrentUser(): Promise<void>;
 
   fetchVotes(): Promise<AdminVote[]>;
   createVote(input: { name: string }): Promise<AdminVote>;
@@ -597,22 +599,12 @@ export class GatewayAdminApiController implements AdminApiController {
 - API Controller는 raw payload를 Query Hook에 전달하지 않는다.
 - public preview payload는 운영 진단용으로 `Record<string, unknown>` 형태까지 허용하되 generated DTO를 노출하지 않는다.
 
-### 5-3. MockAdminApiController
-
-정책:
-- in-memory vote/question store를 사용한다.
-- USER/ADMIN role 허용 정책을 real service와 동일하게 테스트할 수 있어야 한다.
-- mock question upload URL과 imageRatio를 deterministic하게 반환한다.
-- mock과 real service는 Query Hook에서 교체 가능해야 한다.
-
-### 5-4. AdminApiControllerProvider
+### 5-3. AdminApiControllerProvider
 
 React에서는 provider factory를 명시적으로 둔다.
 
 ```ts
 export function createAdminApiController(env: EnvConfig): AdminApiController {
-  if (env.useMockService) return new MockAdminApiController();
-
   return new GatewayAdminApiController(
     new FetchAdminApiGateway({
       baseUrl: env.apiBaseUrl,
@@ -843,7 +835,6 @@ export interface QuestionImageUploadService {
 구현 후보:
 - `S3QuestionImageUploadService`: Cognito 임시 자격 증명 + SigV4 PUT
 - `PresignedQuestionImageUploadService`: Spring 발급 presigned URL PUT
-- `MockQuestionImageUploadService`: 테스트/로컬 demo
 
 정책:
 - 장기 AWS key를 frontend에 넣지 않는다.
@@ -1006,6 +997,8 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - `id`/`voteId` alias
 - `name`/`voteName` alias
 - `detail`/`description` alias
+- `questionCount`/`questionsCount`/`question_count` alias
+- `tagCount`/`tagsCount`/`tag_count` alias와 `tags` 배열 fallback
 - nested `{ question, tags }` payload
 - `imageRatio` scaled integer decode
 - future double `imageRatio` decode
@@ -1100,9 +1093,8 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 - mapper/gateway unit test 작성
 - `AdminApiController` contract 작성
 
-### Phase 3. Mock API controller and query hooks
+### Phase 3. Runtime and query hooks
 
-- `MockAdminApiController` 작성
 - API controller provider/runtime context 작성
 - auth/vote/question Query Hook 작성
 - TanStack Query key 정책 작성
@@ -1168,7 +1160,7 @@ Firebase Hosting origin을 다음 CORS 대상에 추가한다.
 2. `src/api/model`은 안정적인 domain model만 정의한다.
 3. `src/api/service/gateway`와 `src/api/service/mapper`가 서버 DTO와 domain model 사이 중간 계층을 구성한다.
 4. View/Query Hook은 endpoint, generated DTO, raw payload를 직접 알지 않는다.
-5. `AdminApiController` 구현체는 mock과 real을 같은 contract로 교체할 수 있다.
+5. production runtime은 실 서버 Gateway만 사용한다.
 6. auth, vote, question, upload, link, QR, player, diagnostics flow가 동작한다.
 7. mapper/gateway test가 서버 DTO 변화의 주요 alias와 타입 차이를 보호한다.
 8. Firebase origin에서 Spring API와 S3 CORS가 통과한다.

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './css/TagSticker.css';
 
 type TagStickerProps = {
   children: ReactNode;

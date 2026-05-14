@@ -1,0 +1,147 @@
+.admin-screen {
+  min-height: 100dvh;
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+  color: #000000;
+}
+
+.surface-screen {
+  background: var(--page);
+}
+
+.settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 32px;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #f3f4f6;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--key);
+  color: #000000;
+  font-size: 20px;
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgba(254, 211, 24, 0.35);
+}
+
+.profile-card h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.profile-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.settings-caption {
+  margin: 0;
+  padding: 0 8px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-box {
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.settings-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  color: #000000;
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+
+.settings-row:hover {
+  background: #f9fafb;
+}
+
+.settings-row.danger {
+  color: var(--danger);
+}
+
+.settings-row-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #4b5563;
+}
+
+.settings-row > span:nth-child(2) {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.settings-row svg {
+  width: 20px;
+  height: 20px;
+}
+
+.settings-row > svg {
+  color: #d1d5db;
+}
+
+.settings-divider {
+  height: 1px;
+  margin: 0 20px;
+  background: #f3f4f6;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.settings-footer {
+  padding: 24px 0 8px;
+  color: #9ca3af;
+  font-size: 12px;
+  text-align: center;
+}

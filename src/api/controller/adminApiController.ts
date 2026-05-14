@@ -5,6 +5,7 @@ export interface AdminApiController {
   login(input: { name: string; password: string }): Promise<AdminUser>;
   fetchCurrentUser(): Promise<AdminUser | null>;
   logout(): Promise<void>;
+  deleteCurrentUser(): Promise<void>;
 
   fetchVotes(): Promise<AdminVote[]>;
   createVote(input: { name: string }): Promise<AdminVote>;

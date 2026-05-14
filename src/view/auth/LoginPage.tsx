@@ -2,11 +2,12 @@ import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthQuery } from '../../api/query/useAuthQuery';
+import taglowLogo from '../../assets/logo/taglow_logo.png';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminMessage } from '../../components/AdminMessage';
 import { AdminTextField } from '../../components/AdminTextField';
 import { debugAuthFlow } from '../../utils';
-import { AuthBrand } from './components/AuthBrand';
+import './css/LoginPage.css';
 
 type LoginForm = {
   name: string;
@@ -19,9 +20,7 @@ export function LoginPage() {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/admin';
   const { handleSubmit, register } = useForm<LoginForm>({
-    defaultValues: auth.isMockService
-      ? { name: 'operator', password: 'password123' }
-      : { name: '', password: '' },
+    defaultValues: { name: '', password: '' },
   });
 
   const submit = handleSubmit(async (values) => {
@@ -45,10 +44,8 @@ export function LoginPage() {
   return (
     <section className="auth-screen">
       <div className="auth-body">
-        <AuthBrand />
-        <div className="auth-title-block">
-          <h1>태그로 남기는<br />우리의 순간.</h1>
-          <p>관리자 계정으로 로그인해 투표를 만들고 QR로 공유하세요.</p>
+        <div className="auth-logo-showcase">
+          <img src={taglowLogo} alt="Taglow logo" />
         </div>
         <form className="auth-form" id="login-form" onSubmit={submit}>
           <AdminTextField label="계정명" autoComplete="username" {...register('name')} />
@@ -64,14 +61,7 @@ export function LoginPage() {
           {auth.successMessage ? (
             <AdminMessage tone="success">{auth.successMessage}</AdminMessage>
           ) : null}
-          {auth.isMockService ? (
-            <p className="form-hint">
-              Mock 계정: <code>operator/password123</code>, 권한 차단 확인:
-              <code>guest/password123</code>
-            </p>
-          ) : (
-            <p className="form-hint">실 서버에 등록된 관리자 계정으로 로그인해주세요.</p>
-          )}
+
         </form>
       </div>
       <div className="bottom-cta">

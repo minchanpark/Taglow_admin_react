@@ -7,6 +7,7 @@ import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
 import { QuestionForm } from './components/QuestionForm';
 import { QuestionImagePicker } from './components/QuestionImagePicker';
+import './css/QuestionEditorPage.css';
 
 type QuestionFormValues = {
   title: string;

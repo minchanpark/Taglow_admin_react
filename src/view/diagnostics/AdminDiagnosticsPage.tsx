@@ -13,6 +13,7 @@ import { useAuthQuery } from '../../api/query/useAuthQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { ConfirmModal } from './components/ConfirmModal';
+import './css/AdminDiagnosticsPage.css';
 
 type ModalKind = 'logout' | 'delete';
 
@@ -52,11 +53,7 @@ export function AdminDiagnosticsPage() {
   };
 
   const confirmDelete = async () => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('venturous_users');
-      window.localStorage.removeItem('venturous_session');
-    }
-    await auth.logout();
+    await auth.deleteAccount();
     setModal(undefined);
     navigate('/signup', { replace: true });
   };
@@ -122,7 +119,7 @@ export function AdminDiagnosticsPage() {
       />
       <ConfirmModal
         actionLabel="회원탈퇴"
-        description="프로토타입에 저장된 계정과 세션 정보를 이 브라우저에서 삭제합니다."
+        description="실 서버의 현재 관리자 계정을 삭제하고 세션을 종료합니다."
         isOpen={modal === 'delete'}
         onClose={() => setModal(undefined)}
         onConfirm={() => void confirmDelete()}

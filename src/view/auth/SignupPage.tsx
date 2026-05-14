@@ -6,6 +6,7 @@ import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
 import { AdminTextField } from '../../components/AdminTextField';
+import './css/SignupPage.css';
 
 type SignupForm = {
   name: string;

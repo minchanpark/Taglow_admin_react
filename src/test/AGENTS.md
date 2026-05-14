@@ -1,12 +1,12 @@
 # test Agent Guide
 
-`src/test`는 테스트 setup, mocks, fixtures, helper를 둡니다.
+`src/test`는 테스트 setup, fixtures, helper를 둡니다.
 
 ## 책임
 
 - Vitest, React Testing Library, MSW, Playwright가 공유하는 setup을 관리합니다.
 - mapper/gateway/API controller/query/component/e2e 테스트가 재사용할 helper와 fixture를 둡니다.
-- mock API controller는 real `AdminApiController` contract와 같은 표면을 가져야 합니다.
+- 테스트용 controller double은 production `AdminApiController` contract와 같은 표면을 가져야 합니다.
 
 ## 주의
 

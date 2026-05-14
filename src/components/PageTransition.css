@@ -1,0 +1,6 @@
+.page-transition {
+  min-height: 100dvh;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}

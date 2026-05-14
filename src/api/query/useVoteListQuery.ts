@@ -1,4 +1,4 @@
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAdminApiController } from '../runtime/adminRuntime';
 import { queryKeys } from './queryKeys';
 import { validateRequired } from '../../utils';
@@ -12,14 +12,6 @@ export function useVoteListQuery() {
     queryFn: () => adminApiController.fetchVotes(),
   });
 
-  const questionCountQueries = useQueries({
-    queries: (votesQuery.data ?? []).map((vote) => ({
-      queryKey: queryKeys.questions(vote.id),
-      queryFn: () => adminApiController.fetchQuestions(vote.id),
-      enabled: votesQuery.isSuccess,
-    })),
-  });
-
   const createVoteMutation = useMutation({
     mutationFn: (input: { name: string }) => adminApiController.createVote(input),
     onSuccess: async () => {
@@ -28,8 +20,8 @@ export function useVoteListQuery() {
   });
 
   const questionCounts = new Map<string, number>();
-  (votesQuery.data ?? []).forEach((vote, index) => {
-    questionCounts.set(vote.id, questionCountQueries[index]?.data?.length ?? 0);
+  (votesQuery.data ?? []).forEach((vote) => {
+    questionCounts.set(vote.id, vote.questionCount ?? 0);
   });
 
   const createVote = async (name: string) => {

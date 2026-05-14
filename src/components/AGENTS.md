@@ -6,7 +6,7 @@
 
 - Shared buttons, fields, messages, mobile shell, auth/admin layout, modal primitives.
 - Components here must stay domain-light and receive feature behavior through props.
-- Prefer design-system tokens from `src/theme/adminTheme.css`.
+- Keep reusable component styles colocated with the component CSS file and use shared CSS variables from `src/app/App.css`.
 
 ## Restrictions
 

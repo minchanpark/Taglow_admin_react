@@ -24,7 +24,7 @@ import {
   type QuestionImagePickerService,
 } from '../service/upload/questionImagePickerService';
 import {
-  MockQuestionImageUploadService,
+  S3QuestionImageUploadService,
   type QuestionImageUploadService,
 } from '../service';
 import type { ClipboardHelper } from '../../utils';
@@ -42,26 +42,35 @@ export type AdminRuntime = Readonly<{
 
 const AdminRuntimeContext = createContext<AdminRuntime | null>(null);
 
-export function AdminRuntimeProvider({ children }: PropsWithChildren) {
+const createBrowserAdminRuntime = (): AdminRuntime => {
+  const env = createEnvConfig();
+  const downloadHelper = new BrowserBlobDownloadHelper();
+  debugAuthFlow('AdminRuntime.create', {
+    apiMode: env.apiBaseUrl ? 'remote' : 'dev-proxy',
+    voteCreatePath: env.voteCreatePath,
+  });
+  return {
+    env,
+    adminApiController: createAdminApiController(env),
+    urlBuilder: new AdminUrlBuilder(env.participantBaseUrl, env.playerBaseUrl),
+    clipboard: new BrowserClipboardHelper(),
+    qrExportService: new SvgQrExportService(downloadHelper),
+    externalLinkLauncher: new BrowserExternalLinkLauncher(),
+    imagePickerService: new BrowserQuestionImagePickerService(),
+    imageUploadService: new S3QuestionImageUploadService({
+      publicBaseUrl: env.s3PublicBaseUrl,
+      keyPrefix: env.s3QuestionImagePrefix,
+    }),
+  };
+};
+
+export function AdminRuntimeProvider({
+  children,
+  runtime: runtimeOverride,
+}: PropsWithChildren<{ runtime?: AdminRuntime }>) {
   const runtime = useMemo<AdminRuntime>(() => {
-    const env = createEnvConfig();
-    const downloadHelper = new BrowserBlobDownloadHelper();
-    debugAuthFlow('AdminRuntime.create', {
-      useMockService: env.useMockService,
-      apiMode: env.apiBaseUrl ? 'remote' : 'dev-proxy',
-      voteCreatePath: env.voteCreatePath,
-    });
-    return {
-      env,
-      adminApiController: createAdminApiController(env),
-      urlBuilder: new AdminUrlBuilder(env.participantBaseUrl, env.playerBaseUrl),
-      clipboard: new BrowserClipboardHelper(),
-      qrExportService: new SvgQrExportService(downloadHelper),
-      externalLinkLauncher: new BrowserExternalLinkLauncher(),
-      imagePickerService: new BrowserQuestionImagePickerService(),
-      imageUploadService: new MockQuestionImageUploadService(),
-    };
-  }, []);
+    return runtimeOverride ?? createBrowserAdminRuntime();
+  }, [runtimeOverride]);
 
   return (
     <AdminRuntimeContext.Provider value={runtime}>

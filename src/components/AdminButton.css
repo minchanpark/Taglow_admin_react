@@ -1,0 +1,80 @@
+.admin-button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.admin-button:active {
+  transform: scale(0.98);
+}
+
+.admin-button svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.admin-button.is-full {
+  width: 100%;
+}
+
+.admin-button-primary {
+  background: var(--key);
+  color: #000000;
+  box-shadow: 0 4px 14px rgba(254, 211, 24, 0.25);
+}
+
+.admin-button-primary:hover:not(:disabled) {
+  background: var(--key-hover);
+}
+
+.admin-button-secondary,
+.admin-button-ghost {
+  border: 1px solid #f3f4f6;
+  background: #ffffff;
+  color: #000000;
+}
+
+.admin-button-secondary:hover:not(:disabled),
+.admin-button-ghost:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.admin-button-dark {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.admin-button-dark:hover:not(:disabled) {
+  background: var(--key);
+  color: #000000;
+}
+
+.admin-button-danger {
+  background: #ffffff;
+  color: var(--danger);
+}
+
+.admin-button-danger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.admin-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+}

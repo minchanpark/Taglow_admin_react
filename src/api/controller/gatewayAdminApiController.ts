@@ -86,6 +86,15 @@ export class GatewayAdminApiController implements AdminApiController {
     this.currentUser = null;
   }
 
+  async deleteCurrentUser(): Promise<void> {
+    const user = this.currentUser ?? (await this.fetchCurrentUser());
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+    await this.gateway.deleteUser(user.id);
+    this.currentUser = null;
+  }
+
   async fetchVotes(): Promise<AdminVote[]> {
     const payloads = await this.gateway.fetchVotes();
     return payloads.map((payload) =>

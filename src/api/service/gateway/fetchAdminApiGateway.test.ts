@@ -116,4 +116,20 @@ describe('FetchAdminApiGateway', () => {
 
     await expect(gateway.me()).resolves.toBeNull();
   });
+
+  it('deletes users through the real user endpoint with encoded path segments', async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    const gateway = new FetchAdminApiGateway({
+      baseUrl: 'https://vote.newdawnsoi.site',
+      voteCreatePath: '/api/votes',
+      fetchImpl: fetchMock as unknown as typeof fetch,
+    });
+
+    await gateway.deleteUser('user/1');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://vote.newdawnsoi.site/api/users/user%2F1',
+      expect.objectContaining({ method: 'DELETE', credentials: 'include' }),
+    );
+  });
 });

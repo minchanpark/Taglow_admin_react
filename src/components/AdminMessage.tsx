@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './AdminMessage.css';
 
 type AdminMessageProps = {
   tone?: 'info' | 'success' | 'warning' | 'danger';

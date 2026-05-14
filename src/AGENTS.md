@@ -11,7 +11,7 @@ api/        query hooks, API controllers, domain models, runtime, services, gate
 utils/      pure utilities and browser helper wrappers
 theme/      tokens, colors, typography, global css
 store/      Zustand UI/session stores
-test/       setup, mocks, fixtures
+test/       setup, fixtures, helpers
 ```
 
 ## 공통 규칙

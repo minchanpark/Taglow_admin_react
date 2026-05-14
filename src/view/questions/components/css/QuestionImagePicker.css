@@ -1,0 +1,65 @@
+.poster-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.poster-upload-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2px dashed #d1d5db;
+  border-radius: 16px;
+  background: #f8f9fa;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.poster-uploader:hover .poster-upload-box {
+  border-color: var(--key);
+  background: rgba(254, 211, 24, 0.08);
+}
+
+.poster-upload-box img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poster-empty-state {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.poster-empty-state span {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4b5563;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.poster-empty-state svg {
+  width: 24px;
+  height: 24px;
+}
+
+.poster-empty-state strong {
+  max-width: 200px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}

@@ -1,0 +1,53 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0 0 14px;
+  border: 0;
+  border-bottom: 2px solid #e5e7eb;
+  outline: none;
+  background: transparent;
+  color: #000000;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0;
+  transition: border-color 150ms ease;
+}
+
+.field-input::placeholder {
+  color: #d1d5db;
+}
+
+.field-input:focus {
+  border-color: var(--key);
+}
+
+.field-input.textarea {
+  min-height: 92px;
+  resize: vertical;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.field-error {
+  color: var(--danger);
+}
+
+.field-helper {
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+}

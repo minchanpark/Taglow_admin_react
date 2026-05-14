@@ -1,6 +1,7 @@
 import { ImageOff, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { AdminQuestion } from '../../../api/model';
+import './css/QuestionGrid.css';
 
 type QuestionGridProps = {
   questions: AdminQuestion[];
@@ -24,7 +25,7 @@ export function QuestionGrid({ questions, voteId }: QuestionGridProps) {
             )}
           </div>
           <h2>{question.title}</h2>
-          <span>0명 참여</span>
+          <span>{question.tagCount ?? 0}명 참여</span>
         </Link>
       ))}
 

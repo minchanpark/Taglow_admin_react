@@ -5,7 +5,7 @@
 ## 책임
 
 - `AdminRuntimeProvider`, `useAdminRuntime`, `useAdminApiController`를 관리합니다.
-- mock/real API Controller 선택은 provider factory에 위임합니다.
+- API Controller 생성은 provider factory에 위임하며 production runtime은 실 서버 Gateway 구현체만 사용합니다.
 - browser side-effect service 인스턴스를 생성하고 Query Hook에 contract로 노출합니다.
 
 ## 금지

@@ -6,6 +6,7 @@ import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminButton } from '../../components/AdminButton';
 import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
+import './css/VoteSharePage.css';
 
 export function VoteSharePage() {
   const { questionId = 'all', voteId = '' } = useParams();

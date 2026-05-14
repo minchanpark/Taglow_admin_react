@@ -6,6 +6,7 @@ import { AdminHeader } from '../../components/AdminHeader';
 import { AdminMessage } from '../../components/AdminMessage';
 import { QuestionGrid } from './components/QuestionGrid';
 import { VoteStatusControl } from './components/VoteStatusControl';
+import './css/VoteDetailPage.css';
 
 export function VoteDetailPage() {
   const { voteId = '' } = useParams();
