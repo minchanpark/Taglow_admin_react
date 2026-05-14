@@ -1,4 +1,5 @@
 import { ChevronLeft } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminMessage } from '../../components/AdminMessage';
@@ -29,25 +30,34 @@ export function VotePollDetailPage() {
   }
 
   const tags = question.tags ?? [];
+  const imageRatio =
+    Number.isFinite(question.imageRatio) && question.imageRatio > 0
+      ? question.imageRatio
+      : 1;
+  const imageFrameStyle = {
+    '--question-image-ratio': String(imageRatio),
+  } as CSSProperties;
 
   return (
     <section className="sticker-detail-screen">
-      <img alt="" className="sticker-bg-image" src={question.imageUrl} />
-      <div className="sticker-bg-overlay" />
+      <div className="sticker-image-frame" style={imageFrameStyle}>
+        <img alt="" className="sticker-bg-image" src={question.imageUrl} />
+        <div className="sticker-bg-overlay" />
 
-      <div className="tag-dot-layer" aria-label="저장된 태그 위치">
-        {tags.map((tag, index) => (
-          <span
-            aria-label={`태그 위치 ${index + 1}`}
-            className="tag-location-dot"
-            key={tag.id}
-            style={{
-              left: tagLocationToPercent(tag.locationX),
-              top: tagLocationToPercent(tag.locationY),
-            }}
-            title={`태그 위치 ${index + 1}`}
-          />
-        ))}
+        <div className="tag-dot-layer" aria-label="저장된 태그 위치">
+          {tags.map((tag, index) => (
+            <span
+              aria-label={`태그 위치 ${index + 1}`}
+              className="tag-location-dot"
+              key={tag.id}
+              style={{
+                left: tagLocationToPercent(tag.locationX),
+                top: tagLocationToPercent(tag.locationY),
+              }}
+              title={`태그 위치 ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
 
       <header className="sticker-overlay-header">

@@ -6,6 +6,17 @@
   color: #ffffff;
 }
 
+.sticker-image-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(100%, calc(100dvh * var(--question-image-ratio)));
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: var(--question-image-ratio) / 1;
+  transform: translate(-50%, -50%);
+}
+
 .sticker-bg-image {
   position: absolute;
   inset: 0;
