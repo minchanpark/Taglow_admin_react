@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes } from 'react';
-import './AdminTextField.css';
+import './css/AdminTextField.css';
 
 type AdminTextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;

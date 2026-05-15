@@ -93,17 +93,6 @@
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
 }
 
-.delete-confirm-icon {
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 16px;
-  border-radius: 999px;
-  background: #fef2f2;
-  color: var(--danger);
-}
-
 .delete-confirm-popup h2 {
   margin: 0 0 20px;
   font-size: 20px;

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import './MobileCanvas.css';
+import './css/MobileCanvas.css';
 
 export function MobileCanvas({ children }: { children: ReactNode }) {
   return (

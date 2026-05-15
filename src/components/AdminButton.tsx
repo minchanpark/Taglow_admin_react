@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import './AdminButton.css';
+import './css/AdminButton.css';
 
 type AdminButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'dark';

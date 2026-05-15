@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, Trash2 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
 import { AdminButton } from '../../components/AdminButton';
@@ -104,7 +104,7 @@ export function VoteDetailPage() {
             role="dialog"
           >
 
-            <h2 id="delete-confirm-title" className='delete-confirm-title'>정말 삭제하시겠습니까?</h2>
+            <h2 id="delete-confirm-title" className="delete-confirm-title">정말 삭제하시겠습니까?</h2>
             <div className="delete-confirm-actions">
               <AdminButton
                 disabled={voteDetail.isSaving}

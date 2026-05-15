@@ -1,7 +1,7 @@
 import { ChevronLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AdminHeader.css';
+import './css/AdminHeader.css';
 
 type AdminHeaderProps = {
   title: string;

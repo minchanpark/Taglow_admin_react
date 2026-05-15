@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertTriangle, LogOut, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { AdminButton } from '../../../components/AdminButton';
 import './css/ConfirmModal.css';
 

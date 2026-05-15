@@ -32,6 +32,7 @@ function SettingsRow({
 }) {
   return (
     <button className={`settings-row ${danger ? 'danger' : ''}`} onClick={onClick} type="button">
+      <span className="settings-row-icon">{icon}</span>
       <span>{label}</span>
       {trailing ?? <ChevronRight />}
     </button>

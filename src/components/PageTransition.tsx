@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import './PageTransition.css';
+import './css/PageTransition.css';
 
 const transition = { duration: 0.3, ease: [0.22, 1, 0.36, 1] } as const;
 
