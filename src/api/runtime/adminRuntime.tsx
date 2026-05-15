@@ -58,6 +58,9 @@ const createBrowserAdminRuntime = (): AdminRuntime => {
     externalLinkLauncher: new BrowserExternalLinkLauncher(),
     imagePickerService: new BrowserQuestionImagePickerService(),
     imageUploadService: new S3QuestionImageUploadService({
+      region: env.awsRegion,
+      identityPoolId: env.cognitoIdentityPoolId,
+      bucket: env.s3Bucket,
       publicBaseUrl: env.s3PublicBaseUrl,
       keyPrefix: env.s3QuestionImagePrefix,
     }),

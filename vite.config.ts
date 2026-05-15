@@ -4,6 +4,17 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/node_modules/@aws-sdk/') || id.includes('/node_modules/@smithy/')) {
+            return 'aws-sdk';
+          }
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {

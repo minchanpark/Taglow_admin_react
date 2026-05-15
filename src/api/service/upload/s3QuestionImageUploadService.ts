@@ -1,13 +1,20 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import type {
   QuestionImageSelection,
   QuestionImageUploadResult,
 } from '../../model';
 import type { QuestionImageUploadService } from './questionImageUploadService';
 
+type S3UploadClient = Pick<S3Client, 'send'>;
+
 type S3QuestionImageUploadServiceOptions = {
+  region: string;
+  identityPoolId: string;
+  bucket: string;
   publicBaseUrl: string;
   keyPrefix: string;
-  fetchImpl?: typeof fetch;
+  s3Client?: S3UploadClient;
   idProvider?: () => string;
   timestampProvider?: () => number;
 };
@@ -36,16 +43,22 @@ const createId = () => {
 };
 
 export class S3QuestionImageUploadService implements QuestionImageUploadService {
+  private readonly region: string;
+  private readonly identityPoolId: string;
+  private readonly bucket: string;
   private readonly publicBaseUrl: string;
   private readonly keyPrefix: string;
-  private readonly fetchImpl: typeof fetch;
+  private readonly s3Client?: S3UploadClient;
   private readonly idProvider: () => string;
   private readonly timestampProvider: () => number;
 
   constructor(options: S3QuestionImageUploadServiceOptions) {
+    this.region = options.region.trim();
+    this.identityPoolId = options.identityPoolId.trim();
+    this.bucket = options.bucket.trim();
     this.publicBaseUrl = normalizeBaseUrl(options.publicBaseUrl);
     this.keyPrefix = normalizePrefix(options.keyPrefix);
-    this.fetchImpl = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
+    this.s3Client = options.s3Client;
     this.idProvider = options.idProvider ?? createId;
     this.timestampProvider = options.timestampProvider ?? Date.now;
   }
@@ -56,38 +69,39 @@ export class S3QuestionImageUploadService implements QuestionImageUploadService 
     if (!this.publicBaseUrl) {
       throw new Error('S3 public base URL이 설정되지 않았습니다.');
     }
+    if (!this.region) {
+      throw new Error('AWS region이 설정되지 않았습니다.');
+    }
+    if (!this.identityPoolId) {
+      throw new Error('Cognito Identity Pool ID가 설정되지 않았습니다.');
+    }
+    if (!this.bucket) {
+      throw new Error('S3 bucket이 설정되지 않았습니다.');
+    }
 
     const imageRatio = input.imageWidth / input.imageHeight;
     const objectKey = [this.keyPrefix, this.createObjectName(input.fileName)]
       .filter(Boolean)
       .join('/');
     const publicUrl = `${this.publicBaseUrl}/${encodeObjectKey(objectKey)}`;
-    const bytes = input.bytes.buffer.slice(
-      input.bytes.byteOffset,
-      input.bytes.byteOffset + input.bytes.byteLength,
-    ) as ArrayBuffer;
+    const s3Client = this.s3Client ?? this.createS3Client();
 
-    let response: Response;
     try {
-      response = await this.fetchImpl(publicUrl, {
-        method: 'PUT',
-        headers: {
-          'Cache-Control': 'public, max-age=31536000, immutable',
-          'Content-Type': input.contentType,
-        },
-        body: bytes,
-      });
-    } catch (error) {
-      throw new Error(
-        error instanceof Error
-          ? `S3 이미지 업로드에 실패했습니다. ${error.message}`
-          : 'S3 이미지 업로드에 실패했습니다.',
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: objectKey,
+          Body: input.bytes,
+          CacheControl: 'public, max-age=31536000, immutable',
+          ContentType: input.contentType,
+        }),
       );
-    }
-
-    if (!response.ok) {
+    } catch (error) {
+      const statusCode = getAwsStatusCode(error);
       throw new Error(
-        `S3 이미지 업로드에 실패했습니다. CORS와 업로드 권한을 확인해주세요. (${response.status})`,
+        `S3 이미지 업로드에 실패했습니다. Cognito 권한과 S3 CORS를 확인해주세요.${
+          statusCode ? ` (${statusCode})` : ''
+        }`,
       );
     }
 
@@ -105,4 +119,23 @@ export class S3QuestionImageUploadService implements QuestionImageUploadService 
   private createObjectName(fileName: string) {
     return `${this.timestampProvider()}-${this.idProvider()}-${sanitizeFileName(fileName)}`;
   }
+
+  private createS3Client() {
+    return new S3Client({
+      region: this.region,
+      credentials: fromCognitoIdentityPool({
+        clientConfig: { region: this.region },
+        identityPoolId: this.identityPoolId,
+      }),
+    });
+  }
 }
+
+const getAwsStatusCode = (error: unknown) => {
+  if (typeof error !== 'object' || error == null || !('$metadata' in error)) {
+    return null;
+  }
+
+  const metadata = (error as { $metadata?: { httpStatusCode?: number } }).$metadata;
+  return typeof metadata?.httpStatusCode === 'number' ? metadata.httpStatusCode : null;
+};
