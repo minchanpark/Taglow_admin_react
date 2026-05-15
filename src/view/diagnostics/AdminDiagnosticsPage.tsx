@@ -32,7 +32,6 @@ function SettingsRow({
 }) {
   return (
     <button className={`settings-row ${danger ? 'danger' : ''}`} onClick={onClick} type="button">
-      <span className="settings-row-icon">{icon}</span>
       <span>{label}</span>
       {trailing ?? <ChevronRight />}
     </button>
@@ -111,7 +110,7 @@ export function AdminDiagnosticsPage() {
 
       <ConfirmModal
         actionLabel="로그아웃"
-        description="현재 관리자 세션을 종료하고 로그인 화면으로 이동합니다."
+        description="현재 세션을 종료하고 로그인 화면으로 이동합니다."
         isOpen={modal === 'logout'}
         onClose={() => setModal(undefined)}
         onConfirm={() => void confirmLogout()}
@@ -119,7 +118,7 @@ export function AdminDiagnosticsPage() {
       />
       <ConfirmModal
         actionLabel="회원탈퇴"
-        description="실 서버의 현재 관리자 계정을 삭제하고 세션을 종료합니다."
+        description="현재 계정을 삭제하고 세션을 종료합니다."
         isOpen={modal === 'delete'}
         onClose={() => setModal(undefined)}
         onConfirm={() => void confirmDelete()}

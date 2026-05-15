@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Share2, Trash2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useVoteDetailQuery } from '../../api/query/useVoteDetailQuery';
@@ -12,6 +13,7 @@ export function VoteDetailPage() {
   const { voteId = '' } = useParams();
   const navigate = useNavigate();
   const voteDetail = useVoteDetailQuery(voteId);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   if (voteDetail.isLoading) {
     return <div className="list-skeleton full-screen">세부 항목을 불러오는 중입니다.</div>;
@@ -31,6 +33,10 @@ export function VoteDetailPage() {
   const deleteVote = async () => {
     await voteDetail.deleteVote();
     navigate('/admin', { replace: true });
+  };
+
+  const confirmDeleteVote = () => {
+    void deleteVote();
   };
 
   return (
@@ -80,13 +86,44 @@ export function VoteDetailPage() {
 
         <AdminButton
           className="settings-danger-button"
-          icon={<Trash2 size={18} />}
-          onClick={deleteVote}
+          isLoading={voteDetail.isSaving}
+          onClick={() => setIsDeleteConfirmOpen(true)}
           variant="danger"
         >
           카테고리 삭제
         </AdminButton>
       </main>
+
+      {isDeleteConfirmOpen ? (
+        <div className="delete-confirm-backdrop" onClick={() => setIsDeleteConfirmOpen(false)}>
+          <section
+            aria-labelledby="delete-confirm-title"
+            aria-modal="true"
+            className="delete-confirm-popup"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+
+            <h2 id="delete-confirm-title" className='delete-confirm-title'>정말 삭제하시겠습니까?</h2>
+            <div className="delete-confirm-actions">
+              <AdminButton
+                disabled={voteDetail.isSaving}
+                onClick={confirmDeleteVote}
+                variant="danger"
+              >
+                예
+              </AdminButton>
+              <AdminButton
+                disabled={voteDetail.isSaving}
+                onClick={() => setIsDeleteConfirmOpen(false)}
+                variant="secondary"
+              >
+                아니오
+              </AdminButton>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </section>
   );
 }

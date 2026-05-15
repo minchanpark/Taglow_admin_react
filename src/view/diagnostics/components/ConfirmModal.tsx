@@ -48,16 +48,17 @@ export function ConfirmModal({
             >
               <X />
             </button>
-            <div className={`confirm-icon confirm-icon-${tone}`}>
-              {tone === 'danger' ? <AlertTriangle /> : <LogOut />}
-            </div>
             <h2>{title}</h2>
             <p>{description}</p>
             <div className="confirm-actions">
               <AdminButton onClick={onClose} variant="secondary">
                 취소
               </AdminButton>
-              <AdminButton onClick={onConfirm} variant={tone === 'danger' ? 'danger' : 'primary'}>
+              <AdminButton
+                className={tone === 'danger' ? '' : 'confirm-logout-action'}
+                onClick={onConfirm}
+                variant={tone === 'danger' ? 'danger' : 'secondary'}
+              >
                 {actionLabel}
               </AdminButton>
             </div>

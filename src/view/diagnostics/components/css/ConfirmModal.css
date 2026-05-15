@@ -55,6 +55,10 @@
   gap: 10px;
 }
 
+.confirm-logout-action {
+  color: var(--key);
+}
+
 .modal-close-button {
   width: 32px;
   height: 32px;
